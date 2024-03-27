@@ -3,10 +3,10 @@ import React from 'react';
 import StyledContainer from "@/app/utils/container";
 
 
-export default function Home() {
+export default function Profile() {
   return (
     <StyledContainer>
-      testing
+      testingProfile
     </StyledContainer>
   );
 }

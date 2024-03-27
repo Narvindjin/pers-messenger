@@ -1,8 +1,19 @@
-`use client`
+'use client'
 import styled from "styled-components";
 
-const StyledDiv = styled.div`
-    margin-right: 11px;
+const StyledWrapper = styled.div`
+    position: relative;
+  display: flex;
+  flex-direction: column;
+
+  header,
+  footer {
+    flex-shrink: 0;
+  }
+
+  main {
+    flex-grow: 1;
+  }
 `
 
-export {StyledDiv};
+export {StyledWrapper};

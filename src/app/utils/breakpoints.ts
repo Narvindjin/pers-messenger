@@ -1,3 +1,4 @@
+'use client'
 const breakpoints = {
     smallDesktop: 1440,
     tablet: 992,
