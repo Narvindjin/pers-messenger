@@ -6,7 +6,7 @@ import StyledContainer from "@/app/utils/container";
 export default function Profile() {
   return (
     <StyledContainer>
-      testingProfile
+      testingProfilePage
     </StyledContainer>
   );
 }

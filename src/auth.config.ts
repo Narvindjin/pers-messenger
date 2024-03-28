@@ -2,9 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
   pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/error', // Error code passed in query string as ?error=
+    signIn: '/auth/signin/page',
   },
     callbacks: {
     authorized({ auth, request: { nextUrl } }) {

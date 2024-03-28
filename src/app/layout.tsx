@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StyledComponentsRegistry from "@/lib/registry";
+import StyledComponentsRegistry from "@/app/lib/registry";
 import {StyledWrapper} from "@/app/style";
 import Header from "@/app/blocks/header/header";
 
