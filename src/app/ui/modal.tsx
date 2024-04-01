@@ -1,19 +1,19 @@
 'use client'
 import Modal from 'react-modal';
 import {useRouter} from "next/router";
+import {useState} from "react";
+
 export default function Modal({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-    const router = useRouter()
-    const handleRequestClose = () => {
-        router.back();
-    }
+    console.log('modal');
+    const [modalIsOpen, setIsOpen] = useState(false);
   return (
-      <Modal isOpen={true}
+      <Modal isOpen={modalIsOpen}
              closeTimeoutMS={300}
-             onRequestClose={handleRequestClose}
+             ariaHideApp={false}
       >
           {children}
       </Modal>

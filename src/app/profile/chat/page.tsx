@@ -3,6 +3,13 @@ import React, {useState} from 'react';
 import StyledContainer from "@/app/utils/container";
 import { useEffect } from 'react'
 import io from 'socket.io-client'
+import {PageObject} from "@/app/profile/layout";
+
+const chattingPage:PageObject = {
+    id: 0,
+    name: 'Чаты',
+    url: './chat',
+}
 
 let socket
 
@@ -43,3 +50,5 @@ export default function Chat() {
       </StyledContainer>
   );
 }
+
+export {chattingPage};
