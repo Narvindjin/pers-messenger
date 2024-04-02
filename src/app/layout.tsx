@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children
+  children, auth
 }: Readonly<{
   children: React.ReactNode;
   auth: React.ReactNode;
@@ -17,11 +17,12 @@ export default function RootLayout({
   return (
           <html lang="en">
               <StyledComponentsRegistry>
-                    <body>
+                    <body id={'root'}>
                         <StyledWrapper>
                             <Header />
                             <main>
                                 {children}
+                                {auth}
                             </main>
                         </StyledWrapper>
                     </body>

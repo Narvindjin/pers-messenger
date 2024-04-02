@@ -1,9 +1,18 @@
 'use client'
-import Modal from '@/app/ui/modal'
 import LoginForm from "@/app/ui/login-form";
+import {useEffect, useState} from "react";
+import Modal from "react-modal";
+import ModalUI from "@/app/ui/modal";
 
 export default function SigninModal() {
+  const [isModalShowing, setShowModal] = useState(false)
+  useEffect(() => {
+        Modal.setAppElement('#root');
+        setShowModal(true)
+    }, [])
   return (
-      123
-  )
+          <ModalUI isModalShowing={isModalShowing} setShowModal={setShowModal}>
+              <LoginForm/>
+          </ModalUI>
+  );
 }

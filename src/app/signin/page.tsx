@@ -1,17 +1,11 @@
 'use client'
 import LoginForm from "@/app/ui/login-form";
-import { useState } from "react";
-import Modal from "react-modal";
+import StyledContainer from "@/app/utils/container";
 
-export default function NewsModal() {
-  const [showModal, setShowModal] = useState(true);
+export default function SignIn() {
   return (
-    <>
-      <button onClick={() => setShowModal(true)}>Open Modal</button>
-      <Modal isOpen={showModal}>
-        <button onClick={() => setShowModal(false)}>Close Modal </button>
-        <h1> This is NewsModal </h1>
-      </Modal>
-    </>
+      <StyledContainer>
+          <LoginForm/>
+      </StyledContainer>
   );
 }
