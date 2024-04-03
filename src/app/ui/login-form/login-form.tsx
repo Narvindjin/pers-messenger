@@ -4,7 +4,7 @@ import {useFormState, useFormStatus} from 'react-dom';
 import {authenticate} from '@/app/lib/actions';
 
 export default function LoginForm() {
-    const [errorMessage, dispatch] = useFormState(authenticate, undefined as Awaited<undefined>);
+    const [errorMessage, dispatch] = useFormState(authenticate, {message: undefined});
 
     return (
         <form action={dispatch as string}>
@@ -29,9 +29,7 @@ export default function LoginForm() {
                 <div
                 >
                     {errorMessage && (
-                        <>
-                            <p>{errorMessage}</p>
-                        </>
+                        console.log(errorMessage)
                     )}
                 </div>
             </div>

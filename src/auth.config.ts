@@ -2,10 +2,10 @@ import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
   pages: {
-    signIn: '/auth/signin/page',
+    signIn: '/signin/',
   },
     callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    /*authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnProfile = nextUrl.pathname.startsWith('/profile');
       if (isOnProfile) {
@@ -15,7 +15,7 @@ export const authConfig = {
         return Response.redirect(new URL('/profile', nextUrl));
       }
       return true;
-    },
+    },*/
   },
   providers: [],
 } satisfies NextAuthConfig;

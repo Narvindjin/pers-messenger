@@ -2,20 +2,20 @@
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
+interface PrevStateInterface {
+  message: AuthError | undefined
+}
 
 export async function authenticate(
-  prevState: string | undefined,
+  prevState: PrevStateInterface | undefined,
   formData: FormData,
 ) {
   try {
     await signIn('email', formData);
   } catch (error) {
     if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
+      return {
+        message: error,
       }
     }
     throw error;

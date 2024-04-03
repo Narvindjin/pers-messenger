@@ -3,7 +3,7 @@ import EmailProvider from "next-auth/providers/nodemailer";
 import { authConfig } from './auth.config';
 
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     EmailProvider({
