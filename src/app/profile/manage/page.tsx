@@ -6,7 +6,7 @@ import {PageObject} from "@/app/profile/layout";
 const managingPage:PageObject = {
     id: 0,
     name: 'Друзья и ботики',
-    url: './manage',
+    url: '/profile/manage',
 }
 
 export default function Chat() {

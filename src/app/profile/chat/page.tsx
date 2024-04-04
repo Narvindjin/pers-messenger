@@ -1,35 +1,36 @@
 'use client'
-import React, {Suspense, useState} from 'react';
+import React, {useState} from 'react';
 import StyledContainer from "@/app/utils/container";
 import {PageObject} from "@/app/profile/layout";
+import { useSocket } from '@/app/providers/socketProvider';
 
 const chattingPage:PageObject = {
     id: 0,
     name: 'Чаты',
-    url: './chat',
+    url: '/profile/chat',
 }
 
-let socket
 
 export default function Chat() {
-    const [input, setInput] = useState('')
+    const socket = useSocket();
 
-    const onChangeHandler = (e) => {
-      setInput(e.target.value)
-      socket.emit('input-change', e.target.value)
+    const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
+        if (socket.isConnected) {
+            const value = evt.target.value;
+            socket.socket.emit('chat-message', value);
+            console.log(value)
+        }
     }
 
-
-  return (
-      <StyledContainer>
-              testingChattingPage
-              <input
-                  placeholder="Type something"
-                  value={input}
-                  onChange={onChangeHandler}
-              />
-      </StyledContainer>
-  );
+    return (
+        <StyledContainer>
+                testingChattingPage
+                <input
+                    onChange={inputHandler}
+                    placeholder="Type something"
+                />
+        </StyledContainer>
+    );
 }
 
 export {chattingPage};

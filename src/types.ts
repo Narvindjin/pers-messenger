@@ -1,0 +1,11 @@
+import { Server as NetServer, Socket } from "net";
+import { NextApiResponse } from "next";
+import { Server as ServerSocket } from "socket.io";
+
+export type NextApiResponseServerSocket = NextApiResponse & {
+    socket: Socket & {
+        server: NetServer & {
+            io: ServerSocket
+        }
+    }
+}

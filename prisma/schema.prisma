@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Message {
-  id        Int         @id @unique @default(uuid())
+  id        String      @id @unique @default(uuid())
   postDate  DateTime    @default(now())
   content   String
   from      User?       @relation(fields: [fromId], references: [id], name: "userFrom")
   to        User?       @relation(fields: [toId], references: [id], name: "userTo")
-  fromId    Int?
-  toId      Int?
+  fromId    String?
+  toId      String?
 }
 
 model Account {
   id                 Int     @id @default(autoincrement())
-  userId             Int     @map("user_id")
+  userId             String     @map("user_id")
   type               String
   provider           String
   providerAccountId  String  @map("provider_account_id")
@@ -45,7 +45,7 @@ model Account {
 model Session {
   id           Int      @id @default(autoincrement())
   sessionToken String   @unique @map("session_token")
-  userId       Int      @map("user_id")
+  userId       String   @map("user_id")
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -53,7 +53,7 @@ model Session {
 }
 
 model User {
-  id            Int       @id @unique @default(cuid())
+  id            String    @id @unique @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
