@@ -1,5 +1,5 @@
 'use client'
-import React, {useState} from 'react';
+import React from 'react';
 import StyledContainer from "@/app/utils/container";
 import {PageObject} from "@/app/profile/layout";
 import { useSocket } from '@/app/providers/socketProvider';

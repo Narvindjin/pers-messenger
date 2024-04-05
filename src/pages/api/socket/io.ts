@@ -2,7 +2,7 @@ import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIo } from "socket.io";
 
-import { NextApiResponseServerSocket } from "@/types";
+import { NextApiResponseServerSocket } from "@/app/lib/types";
 
 export const config = {
     api: {

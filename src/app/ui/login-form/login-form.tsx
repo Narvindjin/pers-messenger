@@ -1,13 +1,14 @@
 'use client';
 
-import {useFormState, useFormStatus} from 'react-dom';
-import {authenticate} from '@/app/lib/actions';
+import {useFormStatus, useFormState} from 'react-dom';
+import {authenticate} from "@/app/lib/actions";
+
 
 export default function LoginForm() {
-    const [errorMessage, dispatch] = useFormState(authenticate, {message: undefined});
+    const [error, formAction] = useFormState(authenticate, 'hello');
 
     return (
-        <form action={dispatch as string}>
+        <form action={formAction as string}>
             <div>
                 <div>
                     <div>
@@ -26,11 +27,12 @@ export default function LoginForm() {
                     </div>
                 </div>
                 <LoginButton/>
-                <div
-                >
-                    {errorMessage && (
-                        console.log(errorMessage)
-                    )}
+                <div>
+                    {error && error !== 'hello' && (
+                        <>
+                          <p>{error}</p>
+                        </>
+                      )}
                 </div>
             </div>
         </form>
