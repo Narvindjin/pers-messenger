@@ -1,4 +1,15 @@
 -- CreateTable
+CREATE TABLE "Message" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "postDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "content" TEXT NOT NULL,
+    "fromId" TEXT NOT NULL,
+    "toId" TEXT NOT NULL,
+    CONSTRAINT "Message_fromId_fkey" FOREIGN KEY ("fromId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Message_toId_fkey" FOREIGN KEY ("toId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
@@ -42,6 +53,17 @@ CREATE TABLE "VerificationToken" (
     "expires" DATETIME NOT NULL
 );
 
+-- CreateTable
+CREATE TABLE "_friends" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL,
+    CONSTRAINT "_friends_A_fkey" FOREIGN KEY ("A") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_friends_B_fkey" FOREIGN KEY ("B") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Message_id_key" ON "Message"("id");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
 
@@ -56,3 +78,9 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_friends_AB_unique" ON "_friends"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_friends_B_index" ON "_friends"("B");

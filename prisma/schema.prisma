@@ -14,10 +14,11 @@ model Message {
   id        String      @id @unique @default(uuid())
   postDate  DateTime    @default(now())
   content   String
-  from      User        @relation(fields: [fromId], references: [id])
-  to        User        @relation(fields: [toId], references: [id])
+  from      User        @relation("fromUser", fields: [fromId], references: [id])
+  to        User        @relation("toUser", fields: [toId], references: [id])
   fromId    String
   toId      String
+}
 
 model Account {
   id                 String  @id @default(cuid())
@@ -56,8 +57,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  fromMessages  Message[]
-  toMessages    Message[]
+  fromMessages  Message[] @relation("fromUser")
+  toMessages    Message[] @relation("toUser")
   friends       User[] @relation("friends")
   friendOf      User[] @relation("friends")
 }
