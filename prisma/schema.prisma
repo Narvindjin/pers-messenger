@@ -10,6 +10,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Message {
+  id        String      @id @unique @default(uuid())
+  postDate  DateTime    @default(now())
+  content   String
+  from      User        @relation(fields: [fromId], references: [id])
+  to        User        @relation(fields: [toId], references: [id])
+  fromId    String
+  toId      String
+
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -47,6 +56,10 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  fromMessages  Message[]
+  toMessages    Message[]
+  friends       User[] @relation("friends")
+  friendOf      User[] @relation("friends")
 }
 
 model VerificationToken {

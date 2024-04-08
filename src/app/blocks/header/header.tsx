@@ -3,10 +3,11 @@ import React from 'react';
 import StyledContainer from "@/app/utils/container";
 import {StyledHeader, StyledList, StyledItem} from "@/app/blocks/header/style";
 import Link from "next/link";
-import { auth } from "@/auth"
+import { auth} from "@/auth"
+import LeaveProfileButton from "@/app/ui/leaveProfileButton/leaveProfileButton";
 
 export default async function Header() {
-    const authenticated = await auth();
+    const authenticatedUser = await auth();
   return (
     <StyledHeader>
         <StyledContainer>
@@ -14,12 +15,12 @@ export default async function Header() {
                 <StyledItem>
                     <Link href={"/"}>Главная</Link>
                 </StyledItem>
-                {authenticated?
+                {authenticatedUser?
                 <StyledItem>
-                        <Link href={"/profile"}>В профиль</Link>
+                        <Link href={"/profile"}>В профиль {authenticatedUser.user?.email}</Link>
                 </StyledItem>: ''}
                 <StyledItem>
-                    {authenticated? <Link href={"/api/auth/signout"}>Выйти из профиля</Link>: <Link href={"/signin"}>Аутентификация</Link>}
+                    {authenticatedUser? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}
                 </StyledItem>
                 <StyledItem>
                     <Link href={"/api/auth/signin"}>В апи аутентификации</Link>

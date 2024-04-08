@@ -1,7 +1,9 @@
 'use server'
-import { signIn } from '@/auth';
+import { signIn, signOut, auth } from '@/auth';
 import { redirect } from "next/dist/client/components/redirect";
 import { validateEmail } from '../utils/utils';
+import prisma from "@/app/lib/prisma";
+import DOMPurify from "isomorphic-dompurify";
 
 
 export type SignInEmailResult =
@@ -46,5 +48,47 @@ export async function signInEmail(
 	}
 	if (redirectUrl) {
 		redirect(redirectUrl);
+	}
+}
+
+export async function signOutHandler(
+	previousState: SignInEmailResult | null,
+	formData: FormData,
+): Promise<SignInEmailResult> {
+	let signoutObject: string | null = null;
+	try {
+			signoutObject = await signOut();
+	} catch (error) {
+		return {
+			status: "error",
+			errorMessage: "Не удалось выйти из аккаунта",
+		};
+	}
+}
+
+export async function sendMessage(message: string, receiverId: string) {
+	const session = await auth()
+	const filteredMessage = DOMPurify.sanitize(message);
+	if (session && session.user) {
+		const user = session.user;
+		const isFriend = await prisma.user.findUnique({
+			where: {
+				id: user.id,
+				friendOf: {
+					id: receiverId
+				}
+			}
+		});
+		if (isFriend) {
+			const message = await prisma.message.create({
+			  data: {
+
+			  },
+			})
+		} else {
+			return 'Не в друзьях'
+		}
+	} else {
+		return 'Неавторизирован'
 	}
 }
