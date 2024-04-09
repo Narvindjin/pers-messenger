@@ -10,8 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Invite {
+  id        String      @id @unique @default(cuid())
+  from      User        @relation("fromInvite", fields: [fromId], references: [id])
+  to        User        @relation("toInvite", fields: [toId], references: [id])
+  fromId    String
+  toId      String
+}
+
 model Message {
-  id        String      @id @unique @default(uuid())
+  id        String      @id @unique @default(cuid())
   postDate  DateTime    @default(now())
   content   String
   from      User        @relation("fromUser", fields: [fromId], references: [id])
@@ -61,6 +69,7 @@ model User {
   toMessages    Message[] @relation("toUser")
   friends       User[] @relation("friends")
   friendOf      User[] @relation("friends")
+  incomingInvites   Invite[] @relation("toInvite")
 }
 
 model VerificationToken {

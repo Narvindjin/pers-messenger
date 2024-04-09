@@ -12,7 +12,9 @@ const managingPage:PageObject = {
 export default function Chat() {
   return (
     <StyledContainer>
-      testingManagingPage
+        <div>
+            <h1>Друзья</h1>
+        </div>
     </StyledContainer>
   );
 }
