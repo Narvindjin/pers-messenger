@@ -121,7 +121,10 @@ export async function getFriendList() {
     const session = await auth();
     if (session && session.user) {
         const user = session.user;
-        return await prisma.user.findMany({
+        return await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
             include: {
                 friendOf: {
                     select: {
