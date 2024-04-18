@@ -3,7 +3,7 @@ import React from 'react';
 import StyledContainer from "@/app/utils/container";
 import {StyledHeader, StyledList, StyledItem} from "@/app/blocks/header/style";
 import Link from "next/link";
-import { auth} from "@/auth"
+import {auth} from "@/auth"
 import LeaveProfileButton from "@/app/ui/leaveProfileButton/leaveProfileButton";
 
 export default async function Header() {

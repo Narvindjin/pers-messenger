@@ -41,7 +41,7 @@ function LoginButton() {
 
     return (
         <button type={"submit"} aria-disabled={pending}>
-            Log in
+            Кинуть инвайт
         </button>
     );
 }

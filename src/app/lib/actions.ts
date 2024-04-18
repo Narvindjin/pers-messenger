@@ -5,6 +5,11 @@ import {validateEmail} from '../utils/utils';
 import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
 
+interface Prisma {
+    user: any,
+    invite: any
+}
+
 
 export type SignInEmailResult =
     | {
@@ -97,6 +102,8 @@ interface Invite {
     toId: string,
 }
 
+/*ДОБАВИТЬ АВТОДОБАВЛЕНИЕ В ДРУЗЬЯ, ЕСЛИ ИНВАЙТЫ ОБОЮДНЫЕ*/
+
 export async function friendInviteHandler(
     previousState: SendInviteResult | null,
     formData: FormData,
@@ -106,37 +113,44 @@ export async function friendInviteHandler(
         const filteredId = DOMPurify.sanitize(id);
         const session = await auth()
         if (session && session.user) {
-            const email = session.user.email;
+            const senderId = session.user.id;
             const receivingUser = await prisma.user.findUnique({
                 where: {
                     id: filteredId,
-                    email: true,
                 },
                 select: {
                     id: true,
+                    email: true,
                     friends: {
                         select: {
                             id: true,
                             email: true,
                         }
                     },
-                    outgoingInvites: {
+                    incomingInvites: {
                         select: {
                             fromId: true,
                         }
                     }
                 }
             });
-            const friendArray = user.friends as Friend[];
-            const inviteArray = user.outgoingInvites as Invite[];
-            const isFriend = friendArray.find((friend) => friend.id === filteredId);
+            if (!receivingUser) {
+                return {
+                    success: false,
+                    errorMessage: 'Пользователя с таким ID не существует',
+                }
+            }
+            const friendArray = receivingUser.friends;
+            const inviteArray = receivingUser.incomingInvites;
+            const isFriend = friendArray.find((friend) => friend.id === senderId);
+            console.log(friendArray, inviteArray);
             if (isFriend) {
                 return {
                     success: false,
                     errorMessage: 'Уже в френдлисте',
                 }
             }
-            const isInvited = inviteArray.find((invite) => invite.toId === filteredId)
+            const isInvited = inviteArray.find((invite) => invite.fromId === senderId)
             if (isInvited) {
                 return {
                     success: false,
@@ -148,20 +162,17 @@ export async function friendInviteHandler(
                     data: {
                         from: {
                             connect: {
-                                where: {
-                                    id: user.id
-                                }
+                                    id: senderId
                             }
                         },
                         to: {
                             connect: {
-                                where: {
                                     id: filteredId
-                                }
                             }
                         },
                     },
                 })
+                console.log(message)
                 return {
                     success: true,
                     errorMessage: 'Успех',
@@ -229,7 +240,7 @@ export async function getFriendList() {
     if (session && session.user) {
         const user = session.user;
         try {
-            return await prisma.user.findUnique({
+            const userObject = await prisma.user.findUnique({
                 where: {
                     id: user.id
                 },
@@ -241,9 +252,37 @@ export async function getFriendList() {
                         },
                     },
                 }
-            })
+            });
+            return userObject.friendOf
         } catch(error) {
             console.log('error')
+            return null;
+        }
+    }
+    return null;
+}
+
+export async function getInviteList() {
+    const session = await auth();
+    if (session && session.user) {
+        const user = session.user;
+        try {
+            const userObject = await prisma.user.findUnique({
+                where: {
+                    id: user.id
+                },
+                include: {
+                    incomingInvites: {
+                        select: {
+                            id: true,
+                            email: true,
+                        },
+                    },
+                }
+            });
+            return userObject.incomingInvites
+        } catch(error) {
+            console.log('invites error')
             return null;
         }
     }
