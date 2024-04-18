@@ -1,4 +1,13 @@
 -- CreateTable
+CREATE TABLE "Invite" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "fromId" TEXT NOT NULL,
+    "toId" TEXT NOT NULL,
+    CONSTRAINT "Invite_fromId_fkey" FOREIGN KEY ("fromId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Invite_toId_fkey" FOREIGN KEY ("toId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Message" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "postDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -60,6 +69,9 @@ CREATE TABLE "_friends" (
     CONSTRAINT "_friends_A_fkey" FOREIGN KEY ("A") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "_friends_B_fkey" FOREIGN KEY ("B") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Invite_id_key" ON "Invite"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Message_id_key" ON "Message"("id");

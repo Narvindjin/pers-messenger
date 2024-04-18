@@ -1,7 +1,7 @@
-'use client'
 import React from 'react';
 import StyledContainer from "@/app/utils/container";
 import {PageObject} from "@/app/profile/layout";
+import FriendRequestForm from '@/app/ui/friendRequest/friendRequest';
 
 const managingPage:PageObject = {
     id: 0,
@@ -9,11 +9,13 @@ const managingPage:PageObject = {
     url: '/profile/manage',
 }
 
-export default function Chat() {
+export default async function ManagePage() {
   return (
     <StyledContainer>
         <div>
             <h1>Друзья</h1>
+            <FriendRequestForm/>
+            <h2>Добавить друга</h2>
         </div>
     </StyledContainer>
   );

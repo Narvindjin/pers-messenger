@@ -9,3 +9,10 @@ export type NextApiResponseServerSocket = NextApiResponse & {
         }
     }
 }
+
+export type User = {
+    id: string,
+    email: string,
+    name: string,
+    image: string
+}

@@ -1,5 +1,4 @@
-'use client'
-import {chattingPage} from "@/app/profile/chat/page";
+import {chattingPageObject} from "@/app/profile/chat/page";
 import {managingPage} from "@/app/profile/manage/page";
 import Link from "next/link";
 import { SocketProvider } from "../providers/socketProvider";
@@ -22,13 +21,13 @@ const constructPageList = () => {
     let index = 1;
     addPage(index, managingPage);
     index++
-    addPage(index, chattingPage);
+    addPage(index, chattingPageObject);
 }
 
 constructPageList();
 
-export default function ProfileLayout({
-  children,
+export default async function ProfileLayout({
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
