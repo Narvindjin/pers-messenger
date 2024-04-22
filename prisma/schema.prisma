@@ -12,8 +12,8 @@ datasource db {
 
 model Invite {
   id        String      @id @unique @default(cuid())
-  from      User        @relation("fromInvite", fields: [fromId], references: [id])
-  to        User        @relation("toInvite", fields: [toId], references: [id])
+  from      User        @relation("fromInvite", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User        @relation("toInvite", fields: [toId], references: [id], onDelete: Cascade)
   fromId    String
   toId      String
 }
@@ -22,8 +22,8 @@ model Message {
   id        String      @id @unique @default(cuid())
   postDate  DateTime    @default(now())
   content   String
-  from      User        @relation("fromUser", fields: [fromId], references: [id])
-  to        User        @relation("toUser", fields: [toId], references: [id])
+  from      User        @relation("fromUser", fields: [fromId], references: [id], onDelete: Cascade)
+  to        User        @relation("toUser", fields: [toId], references: [id], onDelete: Cascade)
   fromId    String
   toId      String
 }

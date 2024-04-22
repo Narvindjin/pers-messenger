@@ -4,6 +4,8 @@ import {PageObject} from "@/app/profile/layout";
 import FriendRequestForm from '@/app/ui/friendRequest/friendRequest';
 import {auth} from "@/auth";
 import FriendList from "@/app/ui/friendList/friendList";
+import IncomingInviteList from '@/app/ui/incomingInviteList/incomingInviteList';
+import OutgoingInviteList from '@/app/ui/outgoingInviteList/outgoingInviteList';
 
 const managingPage:PageObject = {
     id: 0,
@@ -21,8 +23,8 @@ export default async function ManagePage() {
             <FriendList/>
             <h2>Добавить друга</h2>
             <FriendRequestForm/>
-            <h3>Входящие инвайты</h3>
-
+            <IncomingInviteList/>
+            <OutgoingInviteList/>
         </div>
     </StyledContainer>
   );

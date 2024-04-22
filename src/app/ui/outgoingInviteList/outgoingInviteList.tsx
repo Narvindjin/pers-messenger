@@ -1,21 +1,20 @@
 'use server'
-
-import {getIncomingInviteList} from "@/app/lib/actions/friendInvites";
+import {getOutgoingInviteList} from "@/app/lib/actions/friendInvites";
 import { Invite } from '@/app/lib/types';
-import InviteAcceptForm from "./inviteForm";
+import InviteDeleteForm from "./inviteForm";
 
-export default async function IncomingInviteList() {
+export default async function OutgoingInviteList() {
     const constructInviteList = async () => {
-        const inviteArray:Invite[] | null = await getIncomingInviteList();
+        const inviteArray:Invite[] | null = await getOutgoingInviteList();
         if (inviteArray) {
             return (
                 <>
-                    <h2>Входящие приглашения:</h2>
+                    <h2>Исходящие приглашения:</h2>
                     <ul>
                         {inviteArray.map((invite) => {
                             return (
                                 <li key={invite.id}>
-                                    <InviteAcceptForm invite={invite}/>
+                                    <InviteDeleteForm invite={invite}/>
                                 </li>
                             )
                         })}

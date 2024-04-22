@@ -16,3 +16,15 @@ export type User = {
     name: string,
     image: string
 }
+
+export interface Friend {
+    id: string,
+    email: string
+}
+
+export interface Invite {
+    id: string,
+    from: {
+        email: string
+    }
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import {useFormStatus, useFormState} from 'react-dom';
-import {friendInviteHandler} from "@/app/lib/actions";
+import {friendInviteHandler} from "@/app/lib/actions/friendInvites";
 
 export default function FriendRequestForm() {
     const [error, formAction] = useFormState(friendInviteHandler, null);

@@ -1,6 +1,6 @@
 'use server'
 
-import {getFriendList} from "@/app/lib/actions";
+import {getFriendList} from "@/app/lib/actions/friendList";
 
 type Friend = {
     id: string,

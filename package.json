@@ -10,11 +10,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^1.6.0",
+    "@auth/prisma-adapter": "^2.0.0",
     "@prisma/client": "^5.12.1",
     "@types/react-modal": "^3.16.3",
     "isomorphic-dompurify": "^2.7.0",
-    "next": "14.2.1",
+    "next": "14.2.2",
     "next-auth": "^5.0.0-beta.16",
     "nodemailer": "^6.9.13",
     "react": "^18",
@@ -25,14 +25,14 @@
     "styled-components": "^6.1.8",
     "styled-normalize": "^8.1.1",
     "tsx": "^4.7.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18",
     "eslint": "^9",
-    "eslint-config-next": "14.2.1",
+    "eslint-config-next": "14.2.2",
     "prisma": "^5.12.1",
     "typescript": "^5"
   }
