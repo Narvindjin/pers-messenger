@@ -1,14 +1,14 @@
 'use client';
 
 import {useFormStatus, useFormState} from 'react-dom';
-import {deleteInviteHandler} from "@/app/lib/actions/friendInvites";
-import { Invite } from '@/app/lib/types';
+import {removeFriendHandler} from "@/app/lib/actions/friendList";
+import { Friend } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
 
-export default function InviteDeleteForm({invite}: Readonly<{
-    invite: Invite
+export default function RemoveFriendForm({friend}: Readonly<{
+    friend: Friend
   }>) {
-    const [error, formAction] = useFormState(deleteInviteHandler, null);
+    const [error, formAction] = useFormState(removeFriendHandler, null);
     const router = useRouter();
     if (error?.refresh && error.success) {
         error.refresh = false;
@@ -18,12 +18,12 @@ export default function InviteDeleteForm({invite}: Readonly<{
     return (
         <form action={formAction as unknown as string}>
             <div>
-            <input type='text' name='inviteId' readOnly value={invite.id} />
-            <p>Инвайт для {invite!.to!.email}</p>
+            <input type='text' name='friendId' readOnly value={friend.id} />
+            <p>Друг: {friend.email}</p>
             <DeleteButton/>
             </div>
             <div>
-                {!error?.success && error?.errorMessage && (
+            {!error?.success && error?.errorMessage && (
                     <p>{error.errorMessage}</p>
                 )}
             </div>
@@ -33,9 +33,10 @@ export default function InviteDeleteForm({invite}: Readonly<{
 
 function DeleteButton() {
     const {pending} = useFormStatus();
+
     return (
         <button type={"submit"} aria-disabled={pending}>
-            Удалить инвайт
+            Удалить друга
         </button>
     );
 }

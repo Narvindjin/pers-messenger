@@ -24,7 +24,10 @@ export interface Friend {
 
 export interface Invite {
     id: string,
-    from: {
+    from?: {
+        email: string
+    }
+    to?: {
         email: string
     }
 }

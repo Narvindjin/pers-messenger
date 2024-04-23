@@ -1,6 +1,7 @@
 'use server'
 
 import {getFriendList} from "@/app/lib/actions/friendList";
+import RemoveFriendForm from "./friendItem";
 
 type Friend = {
     id: string,
@@ -16,7 +17,7 @@ export default async function FriendList() {
                     {friendArray.map((friend) => {
                         return (
                             <li key={friend.id}>
-                                Друг: <h2>{friend.email}</h2>
+                                <RemoveFriendForm friend={friend}/>
                             </li>
                         )
                     })}

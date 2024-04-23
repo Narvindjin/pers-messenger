@@ -14,6 +14,7 @@ export type SignInEmailResult =
 
 export type Result = {
     success: boolean;
+    refresh: boolean;
     errorMessage: null | string;
 }
 /**
@@ -84,6 +85,7 @@ export async function stringChecker(probablyString: any): Promise<Result | null>
     }
     return {
         success: false,
+        refresh: true,
         errorMessage: 'Вы присылаете мне какую-то дичь',
     }
 } 

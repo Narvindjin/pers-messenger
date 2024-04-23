@@ -27,6 +27,7 @@ export async function friendInviteHandler(
             const senderId = user.id as string;
             if (senderId === filteredId) {
                 return {
+                    refresh: true,
                     success: false,
                     errorMessage: 'Вы и так сами себе друг',
                 }
@@ -58,6 +59,7 @@ export async function friendInviteHandler(
             });
             if (!receivingUser) {
                 return {
+                    refresh: true,
                     success: false,
                     errorMessage: 'Пользователя с таким ID не существует',
                 }
@@ -68,6 +70,7 @@ export async function friendInviteHandler(
             const isFriend = friendArray.find((friend) => friend.id === senderId);
             if (isFriend) {
                 return {
+                    refresh: true,
                     success: false,
                     errorMessage: 'Уже в френдлисте',
                 }
@@ -75,6 +78,7 @@ export async function friendInviteHandler(
             const isInvited = inviteArray.find((invite) => invite.fromId === senderId)
             if (isInvited) {
                 return {
+                    refresh: true,
                     success: false,
                     errorMessage: 'Уже заинвайчен',
                 }
@@ -86,6 +90,7 @@ export async function friendInviteHandler(
             return await createInvite(senderId, filteredId)
         }
         return {
+            refresh: true,
             success: false,
             errorMessage: 'Ошибка авторизации',
         }
@@ -107,6 +112,7 @@ export async function deleteInviteHandler(
             return await deleteInvite(user.id as string, filteredId);
         }
         return {
+            refresh: true,
             success: false,
             errorMessage: 'Ошибка авторизации',
         }
@@ -115,19 +121,20 @@ export async function deleteInviteHandler(
     }
 }
 
-export async function deleteInvite (senderId: string, receiverId: string): Promise<Result> {
+export async function deleteInvite (senderId: string, inviteId: string): Promise<Result> {
     try {
         const invite = await prisma.invite.delete({
-            where: {fromId: senderId, toId: receiverId},
+            where: {fromId: senderId, id: inviteId},
         })
-        console.log(invite)
         return {
+            refresh: true,
             success: true,
             errorMessage: 'Успех',
         }
     } catch (err) {
         console.log(err)
         return {
+            refresh: true,
             success: false,
             errorMessage: 'Ошибка при удалении инвайта',
         }
@@ -155,12 +162,14 @@ async function createInvite (senderId: string, receiverId: string): Promise<Resu
         })
         console.log(invite)
         return {
+            refresh: true,
             success: true,
             errorMessage: 'Успех',
         }
     } catch (err) {
         console.log(err)
         return {
+            refresh: true,
             success: false,
             errorMessage: 'Ошибка при создании инвайта',
         }

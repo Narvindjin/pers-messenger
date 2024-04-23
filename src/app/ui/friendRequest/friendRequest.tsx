@@ -2,9 +2,15 @@
 
 import {useFormStatus, useFormState} from 'react-dom';
 import {friendInviteHandler} from "@/app/lib/actions/friendInvites";
+import { useRouter } from 'next/navigation';
 
 export default function FriendRequestForm() {
     const [error, formAction] = useFormState(friendInviteHandler, null);
+    const router = useRouter();
+    if (error?.refresh && error.success) {
+        error.refresh = false;
+        router.refresh();
+    }
 
     return (
         <form action={formAction as unknown as string}>
@@ -27,9 +33,9 @@ export default function FriendRequestForm() {
                 </div>
                 <LoginButton/>
                 <div>
-                {error?.errorMessage && (
-      <p>{error.errorMessage}</p>
-    )}
+                {!error?.success && error?.errorMessage && (
+                    <p>{error.errorMessage}</p>
+                )}
                 </div>
             </div>
         </form>

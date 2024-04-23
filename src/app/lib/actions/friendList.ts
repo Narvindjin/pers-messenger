@@ -78,12 +78,14 @@ export async function addToFriendList (userId: string, receiverId: string): Prom
             },
           })
         return {
+            refresh: true,
             success: true,
             errorMessage: 'Успех',
         }
     } catch (err) {
         console.log(err)
         return {
+            refresh: true,
             success: false,
             errorMessage: 'Ошибка при добавлении в френд лист',
         }
@@ -108,12 +110,14 @@ export async function removeFromFriendList (userId: string, receiverId: string):
                 },
             })
             return {
+                refresh: true,
                 success: true,
                 errorMessage: 'Успех',
             }
         } catch (err) {
             console.log(err)
             return {
+                refresh: true,
                 success: false,
                 errorMessage: 'Ошибка при удалении из френд листа',
             }
@@ -135,12 +139,14 @@ export async function removeFriendHandler(
             } catch (err) {
                 console.log(err)
                 return {
+                    refresh: true,
                     success: false,
-                    errorMessage: 'Ошибка в удалении из друзейзз',
+                    errorMessage: 'Ошибка в удалении из друзей',
                 }
             }
         } else {
             return {
+                refresh: true,
                 success: false,
                 errorMessage: 'Ошибка авторизации',
             }
@@ -172,12 +178,14 @@ export async function addToFriendListHandler(
             } catch (err) {
                 console.log(err)
                 return {
+                    refresh: true,
                     success: false,
                     errorMessage: 'Нет инвайта для добавления в друзья',
                 }
             }
         } else {
             return {
+                refresh: true,
                 success: false,
                 errorMessage: 'Ошибка авторизации',
             }
