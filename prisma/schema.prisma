@@ -10,6 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Chat {
+    id          String      @id @default(uuid())
+    messages    Message[]
+    createdAt   DateTime @default(now())
+    lastChecked DateTime @updatedAt
+    members     User[]
+}
+
 model Invite {
   id        String      @id @unique @default(cuid())
   from      User        @relation("fromInvite", fields: [fromId], references: [id], onDelete: Cascade)
@@ -26,6 +34,8 @@ model Message {
   to        User        @relation("toUser", fields: [toId], references: [id], onDelete: Cascade)
   fromId    String
   toId      String
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    String
 }
 
 model Account {
@@ -71,6 +81,7 @@ model User {
   friendOf      User[] @relation("friends")
   incomingInvites   Invite[] @relation("toInvite")
   outgoingInvites   Invite[] @relation("fromInvite")
+  chats         Chat[]
 }
 
 model VerificationToken {
