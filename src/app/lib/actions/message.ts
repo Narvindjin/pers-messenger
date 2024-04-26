@@ -1,43 +1,61 @@
 'use server'
-import { getUser } from "../actions";
 import prisma from "@/app/lib/prisma";
-import DOMPurify from "isomorphic-dompurify";
-import { getIsFriend } from './friendList';
 
-export async function sendMessage(message: string, receiverId: string) {
-    const filteredMessage = DOMPurify.sanitize(message);
-    const user = await getUser(); 
-    if (user) {
-        const isFriend = await getIsFriend(user.id!, receiverId);
-        if (isFriend) {
-            try {
-                const message = await prisma.message.create({
-                    data: {
-                        content: filteredMessage,
-                        from: {
-                            connect: {
-                                where: {
-                                    id: user.id
+export async function sendMessage(filteredMessage: string, chatId: string, senderId: string) {
+    try {
+        const message = await prisma.message.create({
+            data: {
+                content: filteredMessage,
+                from: {
+                    connect: {
+                        id: senderId
+                    }
+                },
+                chat: {
+                    connect: {
+                        id: chatId
+                    } 
+                },
+            },
+        })
+        return 'Сообщение доставлено'
+    } catch (err) {
+        return 'Произошла ошибка'
+    }
+}
+
+export async function createChat(userId: string, receiverId: string) {
+    try {
+        const chat = await prisma.chat.create({
+            data: {
+                membersAdapters: {
+                    create: [{
+                            user: {
+                                connect: {
+                                    id: userId
                                 }
                             }
-                        },
-                        to: {
-                            connect: {
-                                where: {
+                        }, {
+                            user: {
+                                connect: {
                                     id: receiverId
                                 }
                             }
-                        },
-                    },
-                })
-                return 'Сообщение доставлено'
-            } catch (err) {
-                return 'Произошла ошибка'
-            }
-        } else {
-            return 'Не в друзьях'
+                        }
+                    ]
+                }
+            },
+        });
+        return {
+            refresh: true,
+            success: true,
+            errorMessage: chat.id as string,
         }
-    } else {
-        return 'Неавторизирован'
+    } catch (err) {
+        return {
+            refresh: true,
+            success: false,
+            errorMessage: 'Ошибка при создании чата',
+        }
     }
 }

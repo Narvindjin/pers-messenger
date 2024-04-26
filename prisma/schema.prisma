@@ -11,12 +11,21 @@ datasource db {
 }
 
 model Chat {
-    id          String      @id @default(uuid())
-    messages    Message[]
-    createdAt   DateTime @default(now())
-    lastChecked DateTime @updatedAt
-    members     User[]
+    id                  String      @id @default(uuid())
+    messages            Message[]
+    createdAt           DateTime @default(now())
+    lastUpdated         DateTime @updatedAt
+    membersAdapters     ChatAdapter[]
 }
+
+model ChatAdapter {
+  id        String    @id @default(uuid())
+  chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  lastChecked   DateTime    @updatedAt
+  }
 
 model Invite {
   id        String      @id @unique @default(cuid())
@@ -31,9 +40,7 @@ model Message {
   postDate  DateTime    @default(now())
   content   String
   from      User        @relation("fromUser", fields: [fromId], references: [id], onDelete: Cascade)
-  to        User        @relation("toUser", fields: [toId], references: [id], onDelete: Cascade)
   fromId    String
-  toId      String
   chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String
 }
@@ -76,12 +83,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
   fromMessages  Message[] @relation("fromUser")
-  toMessages    Message[] @relation("toUser")
   friends       User[] @relation("friends")
   friendOf      User[] @relation("friends")
   incomingInvites   Invite[] @relation("toInvite")
   outgoingInvites   Invite[] @relation("fromInvite")
-  chats         Chat[]
+  chatAdapters      ChatAdapter[]
 }
 
 model VerificationToken {

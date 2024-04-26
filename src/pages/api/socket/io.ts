@@ -4,12 +4,18 @@ import { Server as ServerIo } from "socket.io";
 import { auth } from "@/auth";
 
 import { NextApiResponseServerSocket } from "@/app/lib/types";
+import { sendMessageHandler } from "@/app/lib/actions/socket";
 
 export const config = {
     api: {
         bodyParser: false,
     },
 };
+
+interface MessageInterface {
+    chatId: string;
+    message: string;
+}
 
 const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSocket) => {
     if (!res.socket.server.io) {
@@ -28,11 +34,10 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             }
           });
         res.socket.server.io = socket;
-        socket.on('connection', (initedSocket) => {
-            console.log('user connected')
-            console.log(session)
-            initedSocket.on('chat-message', (msg) => {
-                console.log('message: ' + msg);
+        socket.on('connection', async (initedSocket) => {
+            initedSocket.join(session!.user!.id!);
+            initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
+                await sendMessageHandler(initedSocket, session, msgObject.chatId, msgObject.message)
             });
             initedSocket.on('disconnect', () => {
                 console.log('user disconnected');

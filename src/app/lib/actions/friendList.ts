@@ -2,6 +2,7 @@
 import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import { getUser, Result, stringChecker } from '../actions';
+import { createChat } from "./message";
 
 export const getIsFriend = async(userId:string, receiverId:string) => {
     const isFriend = await prisma.user.findUnique({
@@ -76,7 +77,8 @@ export async function addToFriendList (userId: string, receiverId: string): Prom
                 },
               ],
             },
-          })
+          });
+        const chat = await createChat(userId, receiverId)
         return {
             refresh: true,
             success: true,
