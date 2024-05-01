@@ -17,7 +17,7 @@ export default async function Header() {
                 </StyledItem>
                 {authenticatedUser?
                 <StyledItem>
-                        <Link href={"/profile"}>В профиль {authenticatedUser.user?.email}</Link>
+                        <Link href={"/profile"}>В профиль {authenticatedUser.user?.name}</Link>
                 </StyledItem>: ''}
                 <StyledItem>
                     {authenticatedUser? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}

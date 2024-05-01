@@ -19,15 +19,15 @@ export type User = {
 
 export interface Friend {
     id: string,
-    email: string
+    name: string
 }
 
 export interface Invite {
     id: string,
     from?: {
-        email: string
+        name: string
     }
     to?: {
-        email: string
+        name: string
     }
 }

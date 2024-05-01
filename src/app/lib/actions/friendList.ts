@@ -33,7 +33,7 @@ export async function getFriendList() {
                     friendOf: {
                         select: {
                             id: true,
-                            email: true,
+                            name: true
                         },
                     },
                 }

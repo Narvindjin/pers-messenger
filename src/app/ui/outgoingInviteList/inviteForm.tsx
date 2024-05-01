@@ -19,7 +19,7 @@ export default function InviteDeleteForm({invite}: Readonly<{
         <form action={formAction as unknown as string}>
             <div>
             <input type='text' name='inviteId' readOnly value={invite.id} />
-            <p>Инвайт для {invite!.to!.email}</p>
+            <p>Инвайт для {invite!.to!.name}</p>
             <DeleteButton/>
             </div>
             <div>

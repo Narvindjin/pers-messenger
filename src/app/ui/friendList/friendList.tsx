@@ -2,11 +2,7 @@
 
 import {getFriendList} from "@/app/lib/actions/friendList";
 import RemoveFriendForm from "./friendItem";
-
-type Friend = {
-    id: string,
-    email: string,
-}
+import { Friend } from "@/app/lib/types";
 
 export default async function FriendList() {
     const constructFriendList = async () => {

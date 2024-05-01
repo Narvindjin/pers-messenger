@@ -61,12 +61,17 @@ export async function signOutHandler(
 ): Promise<SignInEmailResult> {
     let signoutObject: string | null = null;
     try {
-        signoutObject = await signOut();
+        await signOut({redirect: false});
+        signoutObject = 'signout'
     } catch (error) {
+        console.log(error)
         return {
             status: "error",
             errorMessage: "Не удалось выйти из аккаунта",
         };
+    }
+    if (signoutObject) {
+        redirect('/')
     }
 }
 

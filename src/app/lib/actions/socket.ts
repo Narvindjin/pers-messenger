@@ -13,7 +13,7 @@ interface Adapter {
 
 export async function sendMessageMiddleStep(
     socket: Socket,
-    session: Session | null,
+    userId: string,
     chatId: string,
     message: string
 ){
@@ -32,10 +32,10 @@ export async function sendMessageMiddleStep(
             }
         });
         const adapters = chat.membersAdapters as Adapter[];
-        const adapter = adapters.find((adapter) => adapter.userId === session!.user!.id)
+        const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
-            await sendMessage(message, chatId, session!.user!.id!);
-            const filteredUsers = adapters.filter((adapter) => adapter.userId !== session!.user!.id)
+            await sendMessage(message, chatId, userId);
+            const filteredUsers = adapters.filter((adapter) => adapter.userId !== userId)
             for (const user of filteredUsers) {
                 socket.to(user.userId).emit('messageSent', chatId)
             }
@@ -49,7 +49,7 @@ export async function sendMessageMiddleStep(
 
 export async function sendMessageHandler(
     socket: Socket,
-    session: Session | null,
+    userId: string,
     chatId: any,
     message: any
 ) {
@@ -58,9 +58,13 @@ export async function sendMessageHandler(
     if (checker && checkerMessage) {
         const filteredChatId = DOMPurify.sanitize(chatId as string);
         const filteredMessage = DOMPurify.sanitize(message as string);
-        const result = sendMessageMiddleStep(socket, session, filteredChatId, filteredMessage);
+        const result = sendMessageMiddleStep(socket, userId, filteredChatId, filteredMessage);
         return result;
     } else {
         return 'Вы присылаете мне какую-то дичь'
     }
+}
+
+export async function triggerReceiverRefresh(socket: Socket, receiverId: string) {
+    socket.to(receiverId).emit('refresh')
 }

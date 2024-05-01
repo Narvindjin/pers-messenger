@@ -190,7 +190,7 @@ export async function getIncomingInviteList() {
                             id: true,
                             from: {
                                 select: {
-                                    email: true
+                                    name: true
                                 }
                             },
                         },
@@ -220,7 +220,7 @@ export async function getOutgoingInviteList() {
                             id: true,
                             to: {
                                 select: {
-                                    email: true
+                                    name: true
                                 }
                             },
                         },

@@ -19,7 +19,7 @@ export default function InviteAcceptForm({invite}: Readonly<{
         <form action={formAction as unknown as string}>
             <div>
             <input type='text' name='inviteId' readOnly value={invite.id} />
-            <p>Инвайт от {invite.from!.email}</p>
+            <p>Инвайт от {invite.from!.name}</p>
             <AcceptButton/>
             </div>
             <div>

@@ -19,7 +19,7 @@ export default function RemoveFriendForm({friend}: Readonly<{
         <form action={formAction as unknown as string}>
             <div>
             <input type='text' name='friendId' readOnly value={friend.id} />
-            <p>Друг: {friend.email}</p>
+            <p>Друг: {friend.name}</p>
             <DeleteButton/>
             </div>
             <div>
