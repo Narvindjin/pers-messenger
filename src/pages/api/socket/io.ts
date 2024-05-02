@@ -13,7 +13,7 @@ export const config = {
     },
 };
 
-interface MessageInterface {
+export interface MessageInterface {
     chatId: string;
     message: string;
 }
@@ -28,7 +28,6 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
         });
         socket.use(async (initedSocket, next) => {
             const cookie = initedSocket.handshake.headers.cookie;
-            console.log(cookie);
             const name = process.env.NODE_ENV === "production"
             ? "__Secure-authjs.session-token"
             : "authjs.session-token";
@@ -37,13 +36,11 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             startIndex = cookie?.indexOf('=', startIndex);
             if (startIndex && endIndex) {
                 let jwt: string|undefined;
-                console.log(endIndex);
                 if (endIndex === -1) {
                     jwt = cookie?.slice(startIndex + 1);
                 } else {
                     jwt = cookie?.slice(startIndex + 1, endIndex);
                 }
-                console.log(process.env.AUTH_SECRET)
                 const session = await decode({
                     token: jwt,
                     secret: process.env.AUTH_SECRET as string,

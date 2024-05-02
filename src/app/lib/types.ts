@@ -31,3 +31,13 @@ export interface Invite {
         name: string
     }
 }
+
+export interface MemberAdapter {
+    user: User;
+}
+
+export interface Chat {
+    id: string,
+    lastUpdated: string,
+    memberAdapters: MemberAdapter[],
+}
