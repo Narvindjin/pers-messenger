@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {PageObject} from "@/app/profile/layout";
-import Chat from '@/app/ui/chat/chat';
 import StyledContainer from "@/app/utils/container";
 import ChatList from "@/app/ui/chatList/chatList";
+import ChatWrapper from "@/app/profile/chat/chatWrapper";
 
 const chattingPageObject:PageObject = {
     id: 0,
@@ -11,12 +11,12 @@ const chattingPageObject:PageObject = {
 }
 
 
-export default function ChatPage() {
-    const [currentChat, updateCurrentChat] = useState<Chat | null>(null)
+export default async function ChatPage() {
     return (
         <StyledContainer>
-            <ChatList updateCurrentChat={updateCurrentChat} currentChat={currentChat}/>
-            <Chat currentChat={currentChat}/>
+            <ChatWrapper>
+                <ChatList/>
+            </ChatWrapper>
         </StyledContainer>
     );
 }

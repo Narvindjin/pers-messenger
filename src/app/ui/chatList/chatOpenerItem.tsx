@@ -1,14 +1,15 @@
-import React, {useState} from "react";
+'use client'
+import React, {useContext, useState} from "react";
 import {Chat} from "@/app/lib/types";
+import {ChatContext} from "@/app/contexts/chatContext";
 
 interface ChatOpenerItemProps {
-    updateCurrentChat: (value: (((prevState: (Chat | null)) => (Chat | null)) | Chat | null)) => void;
     chat: Chat;
-    current: boolean;
 }
 
-export default function ChatOpenerItem({updateCurrentChat, chat, current}:ChatOpenerItemProps) {
+export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
     const [persistentName, changeName] = useState('default');
+    const chatContext = useContext(ChatContext)
     const createName = () => {
         let name = '';
         for (const member of chat.memberAdapters) {
@@ -19,9 +20,9 @@ export default function ChatOpenerItem({updateCurrentChat, chat, current}:ChatOp
     }
     return (
         <div>
-            {current? <p>текущий</p>:null}
+            {chatContext.currentChat?.id === chat.id? <p>текущий</p>:null}
             <h3>{createName()}</h3>
-            <button onClick={() => updateCurrentChat(chat)}>Переключить чат</button>
+            <button onClick={() => chatContext.currentChatSetter ? chatContext.currentChatSetter(chat) : null}>Переключить чат</button>
         </div>
     )
 }

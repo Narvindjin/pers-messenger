@@ -1,32 +1,37 @@
 'use client'
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import StyledContainer from "@/app/utils/container";
 import { useSocket } from '@/app/providers/socketProvider';
 import {MessageInterface} from "@/pages/api/socket/io";
-import {Chat} from "@/app/lib/types";
+import {ChatContext} from "@/app/contexts/chatContext";
 
 
-export default function Chat(chat: Chat | null) {
+export default function Chat() {
     const socket = useSocket();
+    const chatContext = useContext(ChatContext)
+
+    useEffect(() => {
+
+    }, []);
 
     const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
-        if (socket.isConnected && chat) {
+        if (socket.isConnected && chatContext.currentChat) {
             if (evt.target.value.length < 1) {
-                socket.socket.emit('stop-typing', chat.id);
+                socket.socket.emit('stop-typing', chatContext.currentChat);
             } else {
-                socket.socket.emit('typing', chat.id);
+                socket.socket.emit('typing', chatContext.currentChat);
             }
         }
     }
     const submitHandler = (evt:SubmitEvent) => {
         evt.preventDefault();
-        if (socket.isConnected && chat) {
+        if (socket.isConnected && chatContext.currentChat) {
             const form = evt.target;
             const formData = new FormData(form);
             const messageText = formData.get('chat-message');
             if (typeof messageText == "string" && messageText.length > 0) {
                 const message:MessageInterface = {
-                    chatId: chat.id,
+                    chatId: chatContext.currentChat.id,
                     message: messageText
                 }
                 socket.socket.emit('chat-message', message);
@@ -35,8 +40,11 @@ export default function Chat(chat: Chat | null) {
     }
 
     return (
-        <StyledContainer>
-                testingChattingPage
+        <div>
+            <div>
+
+            </div>
+            <div>
                 <form action={'/'} method={'post'} onSubmit={() => submitHandler}>
                 <input
                     placeholder="Type something"
@@ -45,6 +53,7 @@ export default function Chat(chat: Chat | null) {
                 />
                     <button type={"submit"}>Послать сообщение</button>
                 </form>
-        </StyledContainer>
+            </div>
+        </div>
     );
 }

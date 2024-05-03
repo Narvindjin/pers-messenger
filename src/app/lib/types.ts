@@ -41,3 +41,10 @@ export interface Chat {
     lastUpdated: string,
     memberAdapters: MemberAdapter[],
 }
+
+export interface Message {
+    id: string,
+    postDate: string,
+    content: string,
+    from: string,
+}
