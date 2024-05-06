@@ -12,7 +12,7 @@ export default async function ChatList() {
                     {chatArray.map((chat) => {
                         return (
                             <li key={chat.id}>
-                                <ChatOpenerItem/>
+                                <ChatOpenerItem chat={chat}/>
                             </li>
                         )
                     })}

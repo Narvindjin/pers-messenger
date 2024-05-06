@@ -39,7 +39,7 @@ export interface MemberAdapter {
 export interface Chat {
     id: string,
     lastUpdated: string,
-    memberAdapters: MemberAdapter[],
+    membersAdapters: MemberAdapter[],
 }
 
 export interface Message {

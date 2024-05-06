@@ -32,7 +32,7 @@ export async function sendMessage(filteredMessage: string, chatId: string, sende
     }
 }
 
-export async function getMessageHistory(chatId):Promise<MessageHistory> {
+export async function getMessageHistory(chatId: string):Promise<MessageHistory> {
     const user = await getUser();
     if (user) {
         try {
@@ -58,6 +58,9 @@ export async function getMessageHistory(chatId):Promise<MessageHistory> {
                 if (adapter.user.id === user.id) {
                     authorized = true;
                 }
+            }
+            if (chat.messages.length > 50) {
+                chat.messages.length = 50;
             }
             if (authorized) {
                 return {
@@ -145,10 +148,12 @@ export async function getChatList () {
                                         },
                                         select: {
                                             user: {
-                                                id: true,
-                                                name: true,
-                                                email: true,
-                                                image: true,
+                                                select: {
+                                                    id: true,
+                                                    name: true,
+                                                    email: true,
+                                                    image: true,
+                                                }
                                             }
                                         }
                                     }
@@ -160,6 +165,7 @@ export async function getChatList () {
             });
             const arrayForReturn: Chat[] = [];
             for (const object of userObject.chatAdapters) {
+                console.log(object.chat);
                 arrayForReturn.push(object.chat as Chat);
             }
             if (arrayForReturn.length < 1) {
