@@ -33,11 +33,12 @@ export async function getFriendList() {
                     friendOf: {
                         select: {
                             id: true,
-                            name: true
+                            name: true,
                         },
                     },
                 }
             });
+
             return userObject.friendOf
         } catch(error) {
             console.log('error')
