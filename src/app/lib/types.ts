@@ -40,11 +40,14 @@ export interface Chat {
     id: string,
     lastUpdated: string,
     membersAdapters: MemberAdapter[],
+    messages: Message[] | null,
+    lastMessage: Message,
 }
 
 export interface Message {
     id: string,
     postDate: string,
     content: string,
-    from: string,
+    fromId: string,
+    chatId: string,
 }

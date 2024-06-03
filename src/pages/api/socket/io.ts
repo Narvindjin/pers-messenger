@@ -48,15 +48,22 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
                 }
                 )
                 initedSocket.data.userId = session?.sub
+                next();
+            } else {
+                next(new Error("invalid jwt token"))
             }
           });
         res.socket.server.io = socket;
         socket.on('connection', async (initedSocket) => {
-            const userId = initedSocket.data.session as string
+            const userId = initedSocket.data.userId as string
+            console.log('socket connected ', userId);
             initedSocket.join(userId);
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
                 await sendMessageHandler(initedSocket, userId, msgObject.chatId, msgObject.message)
             });
+            initedSocket.on('request-new-chat', (partnerId) => {
+
+            })
             initedSocket.on('disconnect', () => {
                 console.log(userId + ' disconnected');
               });

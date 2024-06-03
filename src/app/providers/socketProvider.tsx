@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { io as socketClient } from "socket.io-client"
 
-type SocketContextType = {
+export type SocketContextType = {
     socket: any | null,
     isConnected: boolean,
 }

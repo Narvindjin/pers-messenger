@@ -1,17 +1,14 @@
 'use client'
-import React, {useContext, useEffect} from 'react';
+import React, {FormEvent, Fragment, useContext, useEffect} from 'react';
 import { useSocket } from '@/app/providers/socketProvider';
 import {MessageInterface} from "@/pages/api/socket/io";
 import {ChatContext} from "@/app/contexts/chatContext";
+import ChatMessage from "@/app/ui/chatMessage/chatMessage";
 
 
 export default function Chat() {
     const socket = useSocket();
     const chatContext = useContext(ChatContext)
-
-    useEffect(() => {
-
-    }, [chatContext]);
 
     const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
         if (socket.isConnected && chatContext.currentChat) {
@@ -22,10 +19,12 @@ export default function Chat() {
             }
         }
     }
-    const submitHandler = (evt:SubmitEvent) => {
+    const submitHandler = (evt:FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
+        console.log(socket.isConnected, chatContext.currentChat)
         if (socket.isConnected && chatContext.currentChat) {
             const form = evt.target;
+            console.log(form)
             if (form) {
                 const formData = new FormData(form as HTMLFormElement);
                 const messageText = formData.get('chat-message');
@@ -44,9 +43,18 @@ export default function Chat() {
         <div>
             <div>
                 <p>История сообщений:</p>
+                <div>
+                    {chatContext.currentChat?.messages?.map((message) => {
+                        return(
+                            <Fragment key={message.id}>
+                                <ChatMessage message={message}/>
+                            </Fragment>
+                        )
+                    })}
+                </div>
             </div>
             <div>
-                <form action={'/'} method={'post'} onSubmit={() => submitHandler}>
+                <form action={'/'} method={'post'} onSubmit={(evt) => submitHandler(evt)}>
                 <input
                     placeholder="Type something"
                     name={'chat-message'}

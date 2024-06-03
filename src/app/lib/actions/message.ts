@@ -59,8 +59,8 @@ export async function getMessageHistory(chatId: string):Promise<MessageHistory> 
                     authorized = true;
                 }
             }
-            if (chat.messages.length > 50) {
-                chat.messages.length = 50;
+            if (chat.messages.length > 20) {
+                chat.messages.length = 20;
             }
             if (authorized) {
                 return {
@@ -138,6 +138,12 @@ export async function getChatList () {
                                 select: {
                                     id: true,
                                     lastUpdated: true,
+                                    messages: {
+                                        orderBy: {
+                                          postDate: 'desc',
+                                        },
+                                        take: 1,
+                                    },
                                     membersAdapters: {
                                         where: {
                                             NOT: {
@@ -165,7 +171,9 @@ export async function getChatList () {
             });
             const arrayForReturn: Chat[] = [];
             for (const object of userObject.chatAdapters) {
-                console.log(object.chat);
+                console.log(object.messages);
+                object.lastMessage = object.messages;
+                object.messages = null;
                 arrayForReturn.push(object.chat as Chat);
             }
             if (arrayForReturn.length < 1) {

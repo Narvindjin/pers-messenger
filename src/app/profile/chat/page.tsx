@@ -1,8 +1,8 @@
 import React from 'react';
 import {PageObject} from "@/app/profile/layout";
 import StyledContainer from "@/app/utils/container";
-import ChatList from "@/app/ui/chatList/chatList";
 import ChatWrapper from "@/app/profile/chat/chatWrapper";
+import ChatListWrapper from "@/app/ui/chatList/chatListWrapper";
 
 const chattingPageObject:PageObject = {
     id: 0,
@@ -15,7 +15,7 @@ export default async function ChatPage() {
     return (
         <StyledContainer>
             <ChatWrapper>
-                <ChatList/>
+                <ChatListWrapper/>
             </ChatWrapper>
         </StyledContainer>
     );

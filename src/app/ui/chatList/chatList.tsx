@@ -1,29 +1,35 @@
-'use server'
-import React from 'react';
-import {getChatList} from "@/app/lib/actions/message";
+'use client'
 import ChatOpenerItem from "@/app/ui/chatList/chatOpenerItem";
+import React, {useContext, useEffect} from "react";
+import {Chat} from "@/app/lib/types";
+import {ChatContext} from "@/app/contexts/chatContext";
+import {initChatSocketListeners} from "@/app/ui/chatList/chatSocketListeners";
+import {useSocket} from "@/app/providers/socketProvider";
 
-export default async function ChatList() {
-    const constructChatList = async () => {
-        const chatArray = await getChatList();
-        if (chatArray) {
-            return (
-                <ul>
-                    {chatArray.map((chat) => {
-                        return (
-                            <li key={chat.id}>
-                                <ChatOpenerItem chat={chat}/>
-                            </li>
-                        )
-                    })}
-                </ul>
-            )
+interface ChatArrayObject {
+    chatArray: Chat[];
+}
+
+export default function ChatList({chatArray}: ChatArrayObject) {
+    const socket = useSocket();
+    const chatContext = useContext(ChatContext)
+    useEffect(() => {
+        if (chatContext.chatListSetter) {
+            chatContext.chatListSetter(chatArray);
         }
-        return null
-    }
-    return (
-        <>
-            {await constructChatList()}
-        </>
-    )
+        initChatSocketListeners(chatContext, socket);
+    }, [chatContext.chatListSetter, chatArray]);
+    useEffect(() => {
+    }, []);
+        return (
+            <ul>
+                {chatContext.chatList?.map((chat) => {
+                    return (
+                        <li key={chat.id}>
+                            <ChatOpenerItem chat={chat}/>
+                        </li>
+                    )
+                })}
+            </ul>
+        )
 }
