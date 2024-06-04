@@ -1,13 +1,13 @@
-'use server'
-import React from 'react';
+'use client'
+import React, {useContext} from 'react';
 import StyledContainer from "@/app/utils/container";
 import {StyledHeader, StyledList, StyledItem} from "@/app/blocks/header/style";
 import Link from "next/link";
-import {auth} from "@/auth"
 import LeaveProfileButton from "@/app/ui/leaveProfileButton/leaveProfileButton";
+import {UserContext} from "@/app/contexts/userContext";
 
-export default async function Header() {
-    const authenticatedUser = await auth();
+export default function Header() {
+    const userObject = useContext(UserContext)
   return (
     <StyledHeader>
         <StyledContainer>
@@ -15,12 +15,12 @@ export default async function Header() {
                 <StyledItem>
                     <Link href={"/"}>Главная</Link>
                 </StyledItem>
-                {authenticatedUser?
+                {userObject.user?
                 <StyledItem>
-                        <Link href={"/profile"}>В профиль {authenticatedUser.user?.name}</Link>
+                        <Link href={"/profile"}>В профиль {userObject.user.name}</Link>
                 </StyledItem>: ''}
                 <StyledItem>
-                    {authenticatedUser? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}
+                    {userObject.user? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}
                 </StyledItem>
                 <StyledItem>
                     <Link href={"/api/auth/signin"}>В апи аутентификации</Link>

@@ -6,6 +6,7 @@ import { Session } from "next-auth";
 import { NextApiResponseServerSocket } from "@/app/lib/types";
 import { sendMessageHandler } from "@/app/lib/actions/socket";
 import { decode } from "next-auth/jwt";
+import {getMessageHistory} from "@/app/lib/actions/message";
 
 export const config = {
     api: {
@@ -59,8 +60,16 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             console.log('socket connected ', userId);
             initedSocket.join(userId);
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
-                await sendMessageHandler(initedSocket, userId, msgObject.chatId, msgObject.message)
+                console.log('msg-object:', msgObject)
+                await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
             });
+            initedSocket.on('get-history', async (chatId) => {
+                console.log('get-history', chatId)
+                if (chatId) {
+                    const messageHistory = await getMessageHistory(chatId, userId);
+                    initedSocket.emit('server-history', messageHistory)
+                }
+            })
             initedSocket.on('request-new-chat', (partnerId) => {
 
             })

@@ -17,10 +17,10 @@ export default function ChatList({chatArray}: ChatArrayObject) {
         if (chatContext.chatListSetter) {
             chatContext.chatListSetter(chatArray);
         }
-        initChatSocketListeners(chatContext, socket);
     }, [chatContext.chatListSetter, chatArray]);
     useEffect(() => {
-    }, []);
+        initChatSocketListeners(chatContext, socket);
+    }, [socket, chatContext]);
         return (
             <ul>
                 {chatContext.chatList?.map((chat) => {

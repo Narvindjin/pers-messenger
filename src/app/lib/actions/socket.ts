@@ -1,18 +1,18 @@
 'use server'
-import { Session } from "next-auth"
 import { Socket } from "socket.io"
 import DOMPurify from "isomorphic-dompurify";
 
 import { stringChecker } from '../actions';
 import prisma from "@/app/lib/prisma";
 import { sendMessage } from "./message";
+import {Server} from "node:net";
 
 interface Adapter {
     userId: string
 }
 
 export async function sendMessageMiddleStep(
-    socket: Socket,
+    socket: Server,
     userId: string,
     chatId: string,
     message: string
@@ -34,21 +34,21 @@ export async function sendMessageMiddleStep(
         const adapters = chat.membersAdapters as Adapter[];
         const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
-            await sendMessage(message, chatId, userId);
-            const filteredUsers = adapters.filter((adapter) => adapter.userId !== userId)
-            for (const user of filteredUsers) {
-                socket.to(user.userId).emit('messageSent', chatId)
+            const sentMessage = await sendMessage(message, chatId, userId);
+            for (const adapter of adapters) {
+                console.log('adapter', adapter)
+                socket.to(adapter.userId).emit('server-message', sentMessage)
             }
         } else {
             throw new Error('Ошибка авторизации')
         }
     } catch(err) {
-        return 'Ошибка при отправке сообщения'
+        return err
     }
 }
 
 export async function sendMessageHandler(
-    socket: Socket,
+    socket: Server,
     userId: string,
     chatId: any,
     message: any
@@ -61,7 +61,7 @@ export async function sendMessageHandler(
         const result = sendMessageMiddleStep(socket, userId, filteredChatId, filteredMessage);
         return result;
     } else {
-        return 'Вы присылаете мне какую-то дичь'
+        throw new Error('Присылается какя-то дичь')
     }
 }
 

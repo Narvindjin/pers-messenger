@@ -84,13 +84,9 @@ export async function getUser () {
     }
 }
 
-export async function stringChecker(probablyString: any): Promise<Result | null> {
+export async function stringChecker(probablyString: any): Promise<boolean> {
     if (typeof(probablyString) === 'string') {
-        return null
+        return true
     }
-    return {
-        success: false,
-        refresh: true,
-        errorMessage: 'Вы присылаете мне какую-то дичь',
-    }
+    return false
 } 

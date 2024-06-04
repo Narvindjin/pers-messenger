@@ -20,7 +20,7 @@ export async function friendInviteHandler(
 ): Promise<Result> {
     const id = formData.get('friendRequestId');
     const checker = await stringChecker(id);
-    if (!checker) {
+    if (checker) {
         const filteredId = DOMPurify.sanitize(id as string);
         const user = await getUser();
         if (user) {
@@ -95,7 +95,11 @@ export async function friendInviteHandler(
             errorMessage: 'Ошибка авторизации',
         }
     } else {
-        return checker
+        return {
+            refresh: true,
+            success: false,
+            errorMessage: 'Ошибка авторизации'
+        }
     }
 }
 
@@ -105,7 +109,7 @@ export async function deleteInviteHandler(
 ): Promise<Result> {
     const id = formData.get('inviteId');
     const checker = await stringChecker(id);
-    if (!checker) {
+    if (checker) {
         const filteredId = DOMPurify.sanitize(id as string);
         const user = await getUser();
         if (user) {
@@ -117,7 +121,11 @@ export async function deleteInviteHandler(
             errorMessage: 'Ошибка авторизации',
         }
     } else {
-        return checker
+        return {
+            refresh: true,
+            success: false,
+            errorMessage: 'Вы присылаете мне какую-то дичь',
+        }
     }
 }
 

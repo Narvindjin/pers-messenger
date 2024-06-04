@@ -133,7 +133,7 @@ export async function removeFriendHandler(
 ): Promise<Result> {
     const friendId = formData.get('friendId');
     const checker = await stringChecker(friendId);
-    if (!checker) {
+    if (checker) {
         const filteredId = DOMPurify.sanitize(friendId as string);
         const user = await getUser();
         if (user) {
@@ -155,7 +155,11 @@ export async function removeFriendHandler(
             }
         }
     } else {
-        return checker
+        return {
+                refresh: true,
+                success: false,
+                errorMessage: 'Вы присылаете мне какую-то дичь',
+            }
     }
 }
 
@@ -166,7 +170,7 @@ export async function addToFriendListHandler(
     const inviteId = formData.get('inviteId');
     console.log(inviteId);
     const checker = await stringChecker(inviteId);
-    if (!checker) {
+    if (checker) {
         const filteredId = DOMPurify.sanitize(inviteId as string);
         const user = await getUser();
         if (user) {
@@ -194,6 +198,10 @@ export async function addToFriendListHandler(
             }
         }
     } else {
-        return checker
+        return {
+                refresh: true,
+                success: false,
+                errorMessage: 'Вы присылаете мне какую-то дичь',
+            }
     }
 }

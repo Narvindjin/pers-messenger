@@ -1,6 +1,8 @@
 import { Server as NetServer, Socket } from "net";
 import { NextApiResponse } from "next";
 import { Server as ServerSocket } from "socket.io";
+import {User} from "next-auth";
+import {Result} from "@/app/lib/actions";
 
 export type NextApiResponseServerSocket = NextApiResponse & {
     socket: Socket & {
@@ -8,13 +10,6 @@ export type NextApiResponseServerSocket = NextApiResponse & {
             io: ServerSocket
         }
     }
-}
-
-export type User = {
-    id: string,
-    email: string,
-    name: string,
-    image: string
 }
 
 export interface Friend {
@@ -38,16 +33,25 @@ export interface MemberAdapter {
 
 export interface Chat {
     id: string,
-    lastUpdated: string,
+    lastUpdated: Date,
     membersAdapters: MemberAdapter[],
     messages: Message[] | null,
     lastMessage: Message,
 }
 
+export interface MessageHistory {
+    messages: Message[],
+    chatId: string
+}
+
 export interface Message {
     id: string,
-    postDate: string,
+    postDate: Date,
     content: string,
     fromId: string,
     chatId: string,
+}
+
+export interface MessageHistoryResponse extends Result {
+    messageHistory?: MessageHistory,
 }

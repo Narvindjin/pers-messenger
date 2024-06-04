@@ -1,12 +1,8 @@
 'use server'
 import prisma from "@/app/lib/prisma";
 import {getUser} from "@/app/lib/actions";
-import {Chat, Message} from "@/app/lib/types";
-import {Result} from '../actions';
-
-interface MessageHistory extends Result {
-    message?: Message,
-}
+import {Chat, Message, MessageHistoryResponse} from "@/app/lib/types";
+import {User} from "next-auth";
 
 export async function sendMessage(filteredMessage: string, chatId: string, senderId: string) {
     try {
@@ -25,16 +21,19 @@ export async function sendMessage(filteredMessage: string, chatId: string, sende
                 },
             },
         })
-        return true
+        return message
     } catch (err) {
-        console.log(err)
-        return false
+        console.log('message-error:', err)
+        return err
     }
 }
 
-export async function getMessageHistory(chatId: string):Promise<MessageHistory> {
-    const user = await getUser();
-    if (user) {
+export async function getMessageHistory(chatId: string, userId?: string):Promise<MessageHistoryResponse> {
+    let user: User | null
+    if (!userId) {
+        user = await getUser();
+    }
+    if (user || userId) {
         try {
             const chat = await prisma.chat.findUnique({
                 where: {
@@ -55,25 +54,32 @@ export async function getMessageHistory(chatId: string):Promise<MessageHistory> 
             });
             let authorized = false;
             for (const adapter of chat.membersAdapters) {
-                if (adapter.user.id === user.id) {
+                if (adapter.user.id === user?.id || userId === adapter.user.id) {
                     authorized = true;
                 }
             }
             if (chat.messages.length > 20) {
                 chat.messages.length = 20;
             }
+            chat.chatId = chatId;
             if (authorized) {
                 return {
-                    refresh: true,
+                    refresh: false,
                     success: true,
                     errorMessage: 'Успех',
-                    message: chat.messages,
+                    messageHistory: chat,
+                }
+            } else {
+                return {
+                    refresh: false,
+                    success: false,
+                    errorMessage: 'Ошибка аутентификации',
                 }
             }
         } catch (err) {
             console.log(err)
             return {
-                refresh: true,
+                refresh: false,
                 success: false,
                 errorMessage: 'Такого чата не существует',
             }
@@ -140,9 +146,16 @@ export async function getChatList () {
                                     lastUpdated: true,
                                     messages: {
                                         orderBy: {
-                                          postDate: 'desc',
+                                            postDate: 'desc',
                                         },
                                         take: 1,
+                                        select: {
+                                            id: true,
+                                            postDate: true,
+                                            content: true,
+                                            fromId: true,
+                                            chatId: true,
+                                        }
                                     },
                                     membersAdapters: {
                                         where: {
@@ -171,10 +184,10 @@ export async function getChatList () {
             });
             const arrayForReturn: Chat[] = [];
             for (const object of userObject.chatAdapters) {
-                console.log(object.messages);
-                object.lastMessage = object.messages;
-                object.messages = null;
-                arrayForReturn.push(object.chat as Chat);
+                const chat = object.chat;
+                chat.lastMessage = chat.messages[0];
+                chat.messages = null;
+                arrayForReturn.push(chat as Chat);
             }
             if (arrayForReturn.length < 1) {
                 return null
