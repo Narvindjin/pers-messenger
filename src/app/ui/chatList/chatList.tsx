@@ -5,6 +5,7 @@ import {Chat} from "@/app/lib/types";
 import {ChatContext} from "@/app/contexts/chatContext";
 import {initChatSocketListeners} from "@/app/ui/chatList/chatSocketListeners";
 import {useSocket} from "@/app/providers/socketProvider";
+import {UserContext} from "@/app/contexts/userContext";
 
 interface ChatArrayObject {
     chatArray: Chat[];
@@ -13,13 +14,14 @@ interface ChatArrayObject {
 export default function ChatList({chatArray}: ChatArrayObject) {
     const socket = useSocket();
     const chatContext = useContext(ChatContext)
+    const userContext = useContext(UserContext)
     useEffect(() => {
         if (chatContext.chatListSetter) {
             chatContext.chatListSetter(chatArray);
         }
     }, [chatContext.chatListSetter, chatArray]);
     useEffect(() => {
-        initChatSocketListeners(chatContext, socket);
+        initChatSocketListeners(chatContext, socket, userContext);
     }, [socket, chatContext]);
         return (
             <ul>

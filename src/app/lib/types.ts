@@ -37,6 +37,7 @@ export interface Chat {
     membersAdapters: MemberAdapter[],
     messages: Message[] | null,
     lastMessage: Message,
+    writingArray: User[] | null,
 }
 
 export interface MessageHistory {
@@ -54,4 +55,9 @@ export interface Message {
 
 export interface MessageHistoryResponse extends Result {
     messageHistory?: MessageHistory,
+}
+
+export interface TypingInterface {
+    chatId: string,
+    userId: string,
 }

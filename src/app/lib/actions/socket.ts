@@ -47,6 +47,45 @@ export async function sendMessageMiddleStep(
     }
 }
 
+export async function getOtherUsersInChat(chatId: string, userId: string) {
+    const checker = await stringChecker(chatId);
+    if (checker) {
+        const chat = await prisma.chat.findUnique({
+            where: {
+                id: chatId
+            },
+            select: {
+                membersAdapters: {
+                    select: {
+                        userId: true
+                    }
+                },
+            }
+        });
+        if (chat) {
+            const userIdArray = chat.membersAdapters as Array<{ userId: string }>;
+            let authorized = false;
+            const newArray: Array<string> = [];
+            for (const user of userIdArray) {
+                if (user.userId === userId) {
+                    authorized = true;
+                } else {
+                    newArray.push(user.userId)
+                }
+            }
+            if (authorized) {
+                return newArray
+            } else {
+                throw new Error('Ошибка авторизации')
+            }
+        } else {
+            throw new Error('Чата не существует')
+        }
+    } else {
+        throw new Error('Присылается какая-то дичь')
+    }
+}
+
 export async function sendMessageHandler(
     socket: Server,
     userId: string,

@@ -28,6 +28,62 @@ export async function sendMessage(filteredMessage: string, chatId: string, sende
     }
 }
 
+export async function deleteMessageHistory(chatId: string, userId: string):Promise<MessageHistoryResponse> {
+    try {
+            const chat = await prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                },
+                include: {
+                    membersAdapters: {
+                        select: {
+                            user: {
+                                select: {
+                                    id: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            let authorized = false;
+            for (const adapter of chat.membersAdapters) {
+                if (userId === adapter.user.id) {
+                    authorized = true;
+                }
+            }
+            if (authorized) {
+                const deletedMessages = await prisma.message.deleteMany({
+                    where: {
+                        chatId: chatId,
+                    },
+                });
+                return {
+                    refresh: false,
+                    success: true,
+                    errorMessage: 'Успех',
+                    messageHistory: {
+                        chatId: chatId,
+                        messages: [],
+                    },
+                }
+            } else {
+                return {
+                    refresh: false,
+                    success: false,
+                    errorMessage: 'Ошибка аутентификации',
+                }
+            }
+        } catch (err) {
+            console.log(err)
+            return {
+                refresh: false,
+                success: false,
+                errorMessage: 'Такого чата не существует',
+            }
+        }
+}
+
 export async function getMessageHistory(chatId: string, userId?: string):Promise<MessageHistoryResponse> {
     let user: User | null
     if (!userId) {

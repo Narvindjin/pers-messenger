@@ -3,10 +3,10 @@ import { NextApiRequest } from "next";
 import { Server as ServerIo } from "socket.io";
 import { Session } from "next-auth";
 
-import { NextApiResponseServerSocket } from "@/app/lib/types";
-import { sendMessageHandler } from "@/app/lib/actions/socket";
+import {Chat, NextApiResponseServerSocket} from "@/app/lib/types";
+import {getOtherUsersInChat, sendMessageHandler} from "@/app/lib/actions/socket";
 import { decode } from "next-auth/jwt";
-import {getMessageHistory} from "@/app/lib/actions/message";
+import {deleteMessageHistory, getMessageHistory} from "@/app/lib/actions/message";
 
 export const config = {
     api: {
@@ -60,18 +60,35 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             console.log('socket connected ', userId);
             initedSocket.join(userId);
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
-                console.log('msg-object:', msgObject)
                 await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
             });
-            initedSocket.on('get-history', async (chatId) => {
-                console.log('get-history', chatId)
+            initedSocket.on('get-history', async (chatId: string) => {
                 if (chatId) {
                     const messageHistory = await getMessageHistory(chatId, userId);
                     initedSocket.emit('server-history', messageHistory)
                 }
+            });
+            initedSocket.on('typing', async (chatId: string) => {
+                if (chatId) {
+                    const userIdArray = await getOtherUsersInChat(chatId, userId)
+                    userIdArray.forEach((user) => {
+                        socket.to(user).emit('server-typing', {chatId: chatId, userId: userId})
+                    })
+                }
             })
-            initedSocket.on('request-new-chat', (partnerId) => {
-
+            initedSocket.on('stop-typing', async (chatId: string) => {
+                if (chatId) {
+                    const userIdArray = await getOtherUsersInChat(chatId, userId)
+                    userIdArray.forEach((user) => {
+                        socket.to(user).emit('server-stop-typing', {chatId: chatId, userId: userId})
+                    })
+                }
+            })
+            initedSocket.on('delete-history', async (chatId: string) => {
+                if (chatId) {
+                    const messageHistory = await deleteMessageHistory(chatId, userId);
+                    initedSocket.emit('server-history', messageHistory)
+                }
             })
             initedSocket.on('disconnect', () => {
                 console.log(userId + ' disconnected');

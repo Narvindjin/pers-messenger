@@ -3,7 +3,7 @@ import {createContext, ReactNode, useState} from "react";
 import React from "react";
 import {User} from "next-auth";
 
-export interface userInterface {
+export interface UserInterface {
     user: User | null;
 }
 
@@ -11,7 +11,7 @@ const initialState = {
     user: null,
 }
 
-export const UserContext = createContext<userInterface>(initialState)
+export const UserContext = createContext<UserInterface>(initialState)
 
 interface Props {
     initialUser: User,

@@ -30,9 +30,15 @@ export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
         <div>
             {chatContext.currentChat?.id === chat.id? <p>текущий</p>:null}
             <h3>{persistentName}</h3>
-            <p>Последнее сообщение:</p>
-            <p>От: {chat.lastMessage.fromId === user.user?.id? 'Вы': chat.membersAdapters.find((member) => member.user.id === chat.lastMessage.fromId).user.name}</p>
-            <p>{chat.lastMessage.content}</p>
+            {chat.writingArray? <p>{chat.writingArray[0].name} печатает...</p>:
+                chat.lastMessage?
+                <div>
+                            <p>Последнее сообщение:</p>
+                            <p>От: {chat.lastMessage.fromId === user.user?.id ? 'Вы' : chat.membersAdapters.find((member) => member.user.id === chat.lastMessage.fromId).user.name}</p>
+                            <p>{chat.lastMessage.content}</p>
+                        </div>:
+                    <div></div>
+            }
             <button onClick={() => chatContext.currentChatSetter ? chatContext.currentChatSetter(chat) : null}>Переключить чат</button>
         </div>
     )

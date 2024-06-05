@@ -1,7 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from "react"
+import {createContext, Dispatch, SetStateAction, useContext, useEffect, useState} from "react"
 import { io as socketClient } from "socket.io-client"
+import {Message} from "@/app/lib/types";
 
 export type SocketContextType = {
     socket: any | null,
@@ -26,13 +27,14 @@ export const SocketProvider = ({
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        // Сменить url на продакшне
+        //Сменить url на продакшне
         const socketInstance = new (socketClient as any)(process.env.NEXT_PUBLIC_SITE_URL!, {
             path: "/api/socket/io",
             addTrailingSlash: false,
         })
 
         socketInstance.on("connect", () => {
+            console.log('connected')
             setIsConnected(true)
         })
 
@@ -50,7 +52,7 @@ export const SocketProvider = ({
     return (
         <socketContext.Provider value={{
             socket: socket,
-            isConnected: isConnected
+            isConnected: isConnected,
         }}>
             {children}
         </socketContext.Provider>
