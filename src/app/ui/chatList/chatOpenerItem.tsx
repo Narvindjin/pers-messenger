@@ -12,6 +12,12 @@ export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
     const [persistentName, changeName] = useState('default');
     const chatContext = useContext(ChatContext)
     const user = useContext(UserContext)
+
+    const newChatSetter = () => {
+        chatContext.switchedTabsSetter!(true)
+        chatContext.currentChatSetter!(chat);
+    }
+
     const createName = () => {
         let name = '';
         for (const member of chat.membersAdapters) {
@@ -39,7 +45,7 @@ export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
                         </div>:
                     <div></div>
             }
-            <button onClick={() => chatContext.currentChatSetter ? chatContext.currentChatSetter(chat) : null}>Переключить чат</button>
+            <button onClick={() => chatContext.currentChatSetter && chatContext.currentChat!==chat ? newChatSetter() : null}>Переключить чат</button>
         </div>
     )
 }

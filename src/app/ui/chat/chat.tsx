@@ -11,15 +11,20 @@ export default function Chat() {
     const chatContext = useContext(ChatContext);
 
     useEffect(() => {
-        if (socket.socket)
-        socket.socket.emit('get-history', chatContext.currentChat?.id);
-    }, [chatContext.currentChat, socket.socket]);
+        if (socket.socket && socket.socket.connected && chatContext.switchedTabs) {
+            console.log('get-history');
+            chatContext.switchedTabsSetter!(false);
+            socket.socket.emit('get-history', chatContext.currentChat?.id);
+        }
+    }, [socket.socket, chatContext.switchedTabs]);
 
     const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
-        if (socket.socket && chatContext.currentChat) {
+        if (socket.socket && socket.socket.connected && chatContext.currentChat) {
             if (evt.target.value.length < 1) {
+                console.log('stopped typing')
                 socket.socket.emit('stop-typing', chatContext.currentChat.id);
             } else {
+                console.log('typing')
                 socket.socket.emit('typing', chatContext.currentChat.id);
             }
         }
@@ -32,23 +37,25 @@ export default function Chat() {
     }
 
     const deleteButtonHandler = () => {
-        if (socket.socket && chatContext.currentChat) {
+        if (socket.socket && socket.socket.connected && chatContext.currentChat) {
             socket.socket.emit('delete-history', chatContext.currentChat?.id);
         }
     }
 
     const submitHandler = (evt:FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
-        if (socket.isConnected && chatContext.currentChat) {
+        if (socket.socket && socket.socket.connected && chatContext.currentChat) {
             const form = evt.target;
             if (form) {
                 const formData = new FormData(form as HTMLFormElement);
                 const messageText = formData.get('chat-message');
+                console.log(messageText);
                 if (typeof messageText == "string" && messageText.length > 0) {
                     const message:MessageInterface = {
                         chatId: chatContext.currentChat.id,
                         message: messageText
                     }
+                    console.log('message:', message)
                     socket.socket.emit('chat-message', message);
                 }
             }

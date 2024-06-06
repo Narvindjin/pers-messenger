@@ -1,10 +1,11 @@
 'use server'
 import prisma from "@/app/lib/prisma";
 import {getUser} from "@/app/lib/actions";
-import {Chat, Message, MessageHistoryResponse} from "@/app/lib/types";
+import {Chat, MessageHistoryResponse} from "@/app/lib/types";
 import {User} from "next-auth";
+import {adapter} from "next/dist/server/web/adapter";
 
-export async function sendMessage(filteredMessage: string, chatId: string, senderId: string) {
+export async function sendMessage(filteredMessage: string, chatId: string, senderId: string, adapterArray: {id: string}[]) {
     try {
         const message = await prisma.message.create({
             data: {
@@ -19,6 +20,11 @@ export async function sendMessage(filteredMessage: string, chatId: string, sende
                         id: chatId
                     } 
                 },
+                unreadByUserAdapters: {
+                    connect: {
+                        id: adapterArray
+                    }
+                }
             },
         })
         return message
@@ -99,6 +105,7 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                     messages: true,
                     membersAdapters: {
                         select: {
+                            id: true,
                             user: {
                                 select: {
                                     id: true
@@ -108,10 +115,12 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                     }
                 }
             });
+            let userMemberAdapterId: string;
             let authorized = false;
             for (const adapter of chat.membersAdapters) {
                 if (adapter.user.id === user?.id || userId === adapter.user.id) {
                     authorized = true;
+                    userMemberAdapterId = adapter.user.id
                 }
             }
             if (chat.messages.length > 20) {
@@ -119,6 +128,16 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
             }
             chat.chatId = chatId;
             if (authorized) {
+                    const updatedMembersAdapter = await prisma.chatAdapter.update({
+                        where: {
+                            id: userMemberAdapterId,
+                        },
+                        data: {
+                            toUnreadMessages:{
+                                set: [],
+                            }
+                        }
+                    })
                 return {
                     refresh: false,
                     success: true,
@@ -233,16 +252,19 @@ export async function getChatList () {
                                         }
                                     }
                                 }
-                            }
+                            },
+                            unread: true,
                         },
                     },
                 }
             });
             const arrayForReturn: Chat[] = [];
             for (const object of userObject.chatAdapters) {
+                let unreadMessagesCounter = 0;
                 const chat = object.chat;
                 chat.lastMessage = chat.messages[0];
                 chat.messages = null;
+                chat.unread = object.unread;
                 arrayForReturn.push(chat as Chat);
             }
             if (arrayForReturn.length < 1) {

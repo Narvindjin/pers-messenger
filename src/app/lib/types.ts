@@ -33,11 +33,11 @@ export interface MemberAdapter {
 
 export interface Chat {
     id: string,
-    lastUpdated: Date,
     membersAdapters: MemberAdapter[],
     messages: Message[] | null,
     lastMessage: Message,
     writingArray: User[] | null,
+    unread: boolean,
 }
 
 export interface MessageHistory {

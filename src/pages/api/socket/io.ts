@@ -59,6 +59,11 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             const userId = initedSocket.data.userId as string
             console.log('socket connected ', userId);
             initedSocket.join(userId);
+            initedSocket.on('client-new-invites', async () => {
+            })
+            initedSocket.on('client-number-unanswered-chats', async () => {
+
+            })
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
                 await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
             });
@@ -80,7 +85,7 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
                 if (chatId) {
                     const userIdArray = await getOtherUsersInChat(chatId, userId)
                     userIdArray.forEach((user) => {
-                        socket.to(user).emit('server-stop-typing', {chatId: chatId, userId: userId})
+                        socket.to(user).emit('server-stopped-typing', {chatId: chatId, userId: userId})
                     })
                 }
             })

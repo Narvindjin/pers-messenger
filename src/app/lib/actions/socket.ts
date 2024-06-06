@@ -7,7 +7,7 @@ import prisma from "@/app/lib/prisma";
 import { sendMessage } from "./message";
 import {Server} from "node:net";
 
-interface Adapter {
+export interface Adapter {
     userId: string
 }
 
@@ -34,11 +34,18 @@ export async function sendMessageMiddleStep(
         const adapters = chat.membersAdapters as Adapter[];
         const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
-            const sentMessage = await sendMessage(message, chatId, userId);
+            let adapterArray: {id:string}[] = [];
+            for (adapter of adapters) {
+                if (adapter.userId !== userId) {
+                    const adapterObject = {id: adapter.userId}
+                    adapterArray.push(adapterObject)
+                }
+            }
+            const sentMessage = await sendMessage(message, chatId, userId, adapterArray);
             for (const adapter of adapters) {
-                console.log('adapter', adapter)
                 socket.to(adapter.userId).emit('server-message', sentMessage)
             }
+
         } else {
             throw new Error('Ошибка авторизации')
         }

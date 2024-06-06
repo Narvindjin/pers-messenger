@@ -24,8 +24,8 @@ model ChatAdapter {
   chatId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  lastChecked   DateTime    @updatedAt
-  }
+  toUnreadMessages    Message[]
+ }
 
 model Invite {
   id        String      @id @unique @default(cuid())
@@ -43,6 +43,7 @@ model Message {
   fromId    String
   chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String
+  unreadByUserAdapters ChatAdapter[]
 }
 
 model Account {

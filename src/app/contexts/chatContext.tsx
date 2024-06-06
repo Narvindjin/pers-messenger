@@ -9,6 +9,8 @@ export interface chatContextInterface {
     currentMessageArray: Message[];
     chatList: Chat[] | null;
     chatListSetter: Dispatch<SetStateAction<Chat[] | null>> | null,
+    switchedTabs: boolean;
+    switchedTabsSetter: Dispatch<SetStateAction<boolean>> | null,
 }
 
 const initialState = {
@@ -18,6 +20,8 @@ const initialState = {
     chatListSetter: null,
     changeMessageArray: null,
     currentMessageArray: [],
+    switchedTabs: false,
+    switchedTabsSetter: null
 }
 
 export const ChatContext = createContext<chatContextInterface>(initialState)
@@ -27,11 +31,12 @@ const ChatContextContainer = ({ children }: React.PropsWithChildren) => {
     const [currentChat, updateCurrentChat] = useState<Chat | null>(null);
     const [currentMessageArray, editCurrentMessageArray] = useState<Message[]>([])
     const [chatList, updateChatList] = useState<Chat[] | null>(null);
+    const [switchedTabs, switchedTabsSetter] = useState<boolean>(false)
 
     function changeCurrentChat(chat: Chat) {
         updateCurrentChat(chat);
-        if (currentChat?.messages) {
-            editCurrentMessageArray(currentChat?.messages!)
+        if (chat?.messages) {
+            editCurrentMessageArray(chat?.messages!)
         }
     }
 
@@ -42,7 +47,9 @@ const ChatContextContainer = ({ children }: React.PropsWithChildren) => {
             changeMessageArray: editCurrentMessageArray,
             chatList: chatList,
             chatListSetter: updateChatList,
-            currentMessageArray: currentMessageArray
+            currentMessageArray: currentMessageArray,
+            switchedTabs: switchedTabs,
+            switchedTabsSetter: switchedTabsSetter
         }}>
             {children}
         </ChatContext.Provider>

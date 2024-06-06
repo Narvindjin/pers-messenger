@@ -23,7 +23,7 @@ function checkAndChangeWritingArray(chat: Chat, typingObject: TypingInterface, a
                                     if (chat.writingArray.length < 1) {
                                         chat.writingArray = null;
                                     }
-                                    return  true
+                                    return true
                                 }
                             }
                         }
@@ -53,7 +53,7 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
         });
         socket.socket.on('server-typing', (typingObject: TypingInterface) => {
             if (context.currentChat?.id === typingObject.chatId) {
-                const newCurrentChat = context.currentChat
+                const newCurrentChat = {...context.currentChat}
                 const checker = checkAndChangeWritingArray(newCurrentChat, typingObject, true)
                 if (checker) {
                     context.currentChatSetter!(newCurrentChat)
@@ -72,7 +72,7 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
         });
         socket.socket.on('server-stopped-typing', (typingObject: TypingInterface) => {
             if (context.currentChat?.id === typingObject.chatId) {
-                const newCurrentChat = context.currentChat
+                const newCurrentChat = {...context.currentChat}
                 const checker = checkAndChangeWritingArray(newCurrentChat, typingObject, false)
                 if (checker) {
                     context.currentChatSetter!(newCurrentChat)
@@ -91,7 +91,7 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
         });
         socket.socket.on('server-history', (messageHistory: MessageHistoryResponse) => {
             if (messageHistory.success && context.currentChat && context.currentChat.id === messageHistory.messageHistory?.chatId) {
-                const newCurrentChat = context.currentChat;
+                const newCurrentChat = {...context.currentChat}
                 newCurrentChat.messages = messageHistory.messageHistory.messages;
                 if (context.currentChatSetter) {
                     context.currentChatSetter(newCurrentChat);

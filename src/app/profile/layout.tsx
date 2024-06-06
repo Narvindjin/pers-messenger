@@ -34,6 +34,7 @@ export default async function ProfileLayout({
 
   return (
       <SocketProvider>
+
         <div>
             <ul>
                 {pageList.map((page) => {
