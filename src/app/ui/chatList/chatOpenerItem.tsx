@@ -33,9 +33,10 @@ export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
         createName();
     }, [chat])
     return (
-        <div>
+        <div style={chat.unread? {backgroundColor:"grey"}: undefined}>
             {chatContext.currentChat?.id === chat.id? <p>текущий</p>:null}
             <h3>{persistentName}</h3>
+            {chat.unread? <p>Непрочитанных сообщений: {chat.unread}</p>: null}
             {chat.writingArray? <p>{chat.writingArray[0].name} печатает...</p>:
                 chat.lastMessage?
                 <div>

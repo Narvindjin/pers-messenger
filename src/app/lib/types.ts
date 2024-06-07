@@ -29,6 +29,7 @@ export interface Invite {
 
 export interface MemberAdapter {
     user: User;
+    toUnreadMessages: Message[];
 }
 
 export interface Chat {
@@ -37,12 +38,13 @@ export interface Chat {
     messages: Message[] | null,
     lastMessage: Message,
     writingArray: User[] | null,
-    unread: boolean,
+    unread?: number,
 }
 
 export interface MessageHistory {
     messages: Message[],
-    chatId: string
+    chatId: string,
+    adapters: MemberAdapter[];
 }
 
 export interface Message {
@@ -51,6 +53,7 @@ export interface Message {
     content: string,
     fromId: string,
     chatId: string,
+    unread?: boolean,
 }
 
 export interface MessageHistoryResponse extends Result {

@@ -71,6 +71,7 @@ export async function deleteMessageHistory(chatId: string, userId: string):Promi
                     messageHistory: {
                         chatId: chatId,
                         messages: [],
+                        adapters: [],
                     },
                 }
             } else {
@@ -95,7 +96,10 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
     if (!userId) {
         user = await getUser();
     }
-    if (user || userId) {
+    if (user) {
+        userId = user.id
+    }
+    if (userId) {
         try {
             const chat = await prisma.chat.findUnique({
                 where: {
@@ -107,6 +111,11 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                         select: {
                             id: true,
                             user: {
+                                select: {
+                                    id: true
+                                }
+                            },
+                            toUnreadMessages: {
                                 select: {
                                     id: true
                                 }
@@ -138,6 +147,8 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                             }
                         }
                     })
+                const userMember = chat.membersAdapters.find((member) => member.id === userId)
+                userMember.toUnreadMessages = [];
                 return {
                     refresh: false,
                     success: true,
@@ -253,18 +264,24 @@ export async function getChatList () {
                                     }
                                 }
                             },
-                            unread: true,
+                            toUnreadMessages: {
+                                select: {
+                                    id: true,
+                                }
+                            },
                         },
                     },
                 }
             });
             const arrayForReturn: Chat[] = [];
             for (const object of userObject.chatAdapters) {
-                let unreadMessagesCounter = 0;
                 const chat = object.chat;
+                chat.unread = 0;
                 chat.lastMessage = chat.messages[0];
                 chat.messages = null;
-                chat.unread = object.unread;
+                if (object.toUnreadMessages) {
+                    chat.unread = object.toUnreadMessages.length;
+                }
                 arrayForReturn.push(chat as Chat);
             }
             if (arrayForReturn.length < 1) {

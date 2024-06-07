@@ -59,7 +59,7 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             const userId = initedSocket.data.userId as string
             console.log('socket connected ', userId);
             initedSocket.join(userId);
-            initedSocket.on('client-new-invites', async () => {
+            initedSocket.on('client-new-invite', async () => {
             })
             initedSocket.on('client-number-unanswered-chats', async () => {
 

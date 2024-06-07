@@ -34,6 +34,12 @@ const ChatContextContainer = ({ children }: React.PropsWithChildren) => {
     const [switchedTabs, switchedTabsSetter] = useState<boolean>(false)
 
     function changeCurrentChat(chat: Chat) {
+        if (chatList) {
+            const chatListCopy = chatList.slice(0)
+            const oldChat = chatListCopy.find((oldChat) => oldChat === chat)
+            oldChat.unread = 0;
+            updateChatList(chatListCopy);
+        }
         updateCurrentChat(chat);
         if (chat?.messages) {
             editCurrentMessageArray(chat?.messages!)

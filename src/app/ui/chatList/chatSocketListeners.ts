@@ -40,6 +40,9 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
                 const chat = chatListCopy.find((chat) => chat.id === message.chatId)
                 if (chat) {
                     chat.lastMessage = message;
+                    if (context.currentChat?.id !== message.chatId) {
+                        chat.unread++
+                    }
                     context.chatListSetter!(chatListCopy);
                 } else {
                     socket.socket.emit('request-new-chat', message.fromId)
@@ -92,6 +95,15 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
         socket.socket.on('server-history', (messageHistory: MessageHistoryResponse) => {
             if (messageHistory.success && context.currentChat && context.currentChat.id === messageHistory.messageHistory?.chatId) {
                 const newCurrentChat = {...context.currentChat}
+                for (const adapter of messageHistory.messageHistory.adapters) {
+                    for (const messageId of adapter.toUnreadMessages) {
+                        for (const message of messageHistory.messageHistory.messages) {
+                            if (messageId.chatId === message.chatId) {
+                                message.unread = true;
+                            }
+                        }
+                    }
+                }
                 newCurrentChat.messages = messageHistory.messageHistory.messages;
                 if (context.currentChatSetter) {
                     context.currentChatSetter(newCurrentChat);

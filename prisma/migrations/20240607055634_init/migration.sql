@@ -10,7 +10,6 @@ CREATE TABLE "ChatAdapter" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "chatId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "lastChecked" DATETIME NOT NULL,
     CONSTRAINT "ChatAdapter_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "ChatAdapter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -80,6 +79,14 @@ CREATE TABLE "VerificationToken" (
 );
 
 -- CreateTable
+CREATE TABLE "_ChatAdapterToMessage" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL,
+    CONSTRAINT "_ChatAdapterToMessage_A_fkey" FOREIGN KEY ("A") REFERENCES "ChatAdapter" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_ChatAdapterToMessage_B_fkey" FOREIGN KEY ("B") REFERENCES "Message" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "_friends" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
@@ -107,6 +114,12 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ChatAdapterToMessage_AB_unique" ON "_ChatAdapterToMessage"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ChatAdapterToMessage_B_index" ON "_ChatAdapterToMessage"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_friends_AB_unique" ON "_friends"("A", "B");

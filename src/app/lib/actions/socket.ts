@@ -111,6 +111,25 @@ export async function sendMessageHandler(
     }
 }
 
-export async function triggerReceiverRefresh(socket: Socket, receiverId: string) {
-    socket.to(receiverId).emit('refresh')
+export async function getGeneralInfo(
+    userId
+) {
+    const checker = await stringChecker(userId);
+    if (checker) {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                incomingInvites: true,
+                membersAdapters: {
+                    select: {
+                        toUnreadMessages: true
+                    }
+                },
+            }
+        });
+    } else {
+        throw new Error('Присылается какя-то дичь')
+    }
 }

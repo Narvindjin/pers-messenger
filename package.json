@@ -11,12 +11,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.1.0",
-    "@prisma/client": "^5.14.0",
+    "@auth/prisma-adapter": "^2.2.0",
+    "@prisma/client": "^5.15.0",
     "@types/react-modal": "^3.16.3",
-    "isomorphic-dompurify": "^2.11.0",
+    "isomorphic-dompurify": "^2.12.0",
     "next": "14.2.3",
-    "next-auth": "^5.0.0-beta.18",
+    "next-auth": "^5.0.0-beta.19",
     "nodemailer": "^6.9.13",
     "react": "^18",
     "react-dom": "^18",
@@ -25,20 +25,20 @@
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.11",
     "styled-normalize": "^8.1.1",
-    "tsx": "^4.11.0",
+    "tsx": "^4.13.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.0.1",
-    "@types/node": "^20.12.13",
+    "@eslint/compat": "^1.0.3",
+    "@types/node": "^20.14.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18",
-    "eslint": "^9.3.0",
+    "eslint": "^9.4.0",
     "eslint-config-next": "14.2.3",
     "eslint-plugin-react": "^7.34.2",
-    "globals": "^15.3.0",
-    "prisma": "^5.14.0",
+    "globals": "^15.4.0",
+    "prisma": "^5.15.0",
     "typescript": "^5",
-    "typescript-eslint": "^7.11.0"
+    "typescript-eslint": "^7.12.0"
   }
 }
