@@ -224,7 +224,7 @@ export async function getChatList () {
                     id: user.id
                 },
                 select: {
-                    chatAdapters: {
+                    outgoingChatAdapters: {
                         select: {
                             chat: {
                                 select: {
@@ -274,7 +274,7 @@ export async function getChatList () {
                 }
             });
             const arrayForReturn: Chat[] = [];
-            for (const object of userObject.chatAdapters) {
+            for (const object of userObject.outgoingChatAdapters) {
                 const chat = object.chat;
                 chat.unread = 0;
                 chat.lastMessage = chat.messages[0];

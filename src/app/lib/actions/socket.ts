@@ -35,9 +35,9 @@ export async function sendMessageMiddleStep(
         const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
             let adapterArray: {id:string}[] = [];
-            for (adapter of adapters) {
-                if (adapter.userId !== userId) {
-                    const adapterObject = {id: adapter.userId}
+            for (const newAdapter of adapters) {
+                if (newAdapter.userId !== userId) {
+                    const adapterObject = {id: newAdapter.userId}
                     adapterArray.push(adapterObject)
                 }
             }

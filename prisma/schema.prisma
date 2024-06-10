@@ -22,8 +22,10 @@ model ChatAdapter {
   id        String    @id @default(uuid())
   chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation("fromUser", fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  toUser    User      @relation("toUser", fields: [toUserId], references: [id], onDelete: Cascade)
+  toUserId  String
   toUnreadMessages    Message[]
  }
 
@@ -39,8 +41,8 @@ model Message {
   id        String      @id @unique @default(cuid())
   postDate  DateTime    @default(now())
   content   String
-  from      User        @relation("fromUser", fields: [fromId], references: [id], onDelete: Cascade)
-  fromId    String
+  from    User        @relation("fromUser", fields: [fromId], references: [id], onDelete: Cascade)
+  fromId  String
   chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String
   unreadByUserAdapters ChatAdapter[]
@@ -81,6 +83,8 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  roomUrl       String?
+  bot           Boolean?
   accounts      Account[]
   sessions      Session[]
   fromMessages  Message[] @relation("fromUser")
@@ -88,7 +92,8 @@ model User {
   friendOf      User[] @relation("friends")
   incomingInvites   Invite[] @relation("toInvite")
   outgoingInvites   Invite[] @relation("fromInvite")
-  chatAdapters      ChatAdapter[]
+  outgoingChatAdapters      ChatAdapter[] @relation("fromUser")
+  incomingChatAdapters      ChatAdapter[] @relation("toUser")
 }
 
 model VerificationToken {

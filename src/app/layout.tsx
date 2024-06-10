@@ -22,7 +22,7 @@ export default function RootLayout({
                         {auth}
                         <StyledWrapper>
                             <UserWrapper>
-                                <Header />
+                                <Header/>
                                 <main>
                                     {children}
                                 </main>

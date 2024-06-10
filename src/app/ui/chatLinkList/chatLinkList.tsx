@@ -2,13 +2,28 @@
 import React, {useContext} from "react";
 import {useSocket} from "@/app/providers/socketProvider";
 import Link from "next/link";
-import {managingPage} from "@/app/profile/manage/page";
-import {chattingPage} from "@/app/profile/chat/page";
 import {ProfileOuterContext} from "@/app/contexts/profileOuterContext";
+
+interface PageSettings {
+    id: number;
+    name: string;
+    url: string;
+}
 
 export default function ChatLinkList() {
     const socket = useSocket();
     const outerContext = useContext(ProfileOuterContext)
+    const managingPage:PageSettings = {
+        id: 0,
+        name: 'Друзья и ботики',
+        url: '/profile/manage'
+    }
+
+    const chattingPage:PageSettings = {
+        id: 1,
+        name: 'Чаты',
+        url: '/profile/chat'
+    }
 
     const clickHandler = () => {
         if (socket.socket && socket.socket.connected) {

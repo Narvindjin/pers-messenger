@@ -4,12 +4,6 @@ import StyledContainer from "@/app/utils/container";
 import ChatWrapper from "@/app/profile/chat/chatWrapper";
 import ChatListWrapper from "@/app/ui/chatList/chatListWrapper";
 
-const chattingPage:PageObject = {
-    id: 1,
-    name: 'Чаты',
-    url: '/profile/chat',
-}
-
 
 export default async function ChatPage() {
     return (
@@ -20,5 +14,3 @@ export default async function ChatPage() {
         </StyledContainer>
     );
 }
-
-export {chattingPage};

@@ -1,6 +1,3 @@
-import {chattingPage} from "@/app/profile/chat/page";
-import {managingPage} from "@/app/profile/manage/page";
-import Link from "next/link";
 import { SocketProvider } from "../providers/socketProvider";
 import {ProfileOuterContextContainer} from "@/app/contexts/profileOuterContext";
 import ChatLinkList from "@/app/ui/chatLinkList/chatLinkList";

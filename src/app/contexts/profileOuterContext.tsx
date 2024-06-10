@@ -1,3 +1,4 @@
+'use client'
 import {createContext, Dispatch, SetStateAction, useState} from "react";
 import React from "react";
 export interface ProfileOuterContextInterface {

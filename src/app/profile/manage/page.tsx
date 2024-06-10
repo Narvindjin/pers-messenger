@@ -7,12 +7,6 @@ import FriendList from "@/app/ui/friendList/friendList";
 import IncomingInviteList from '@/app/ui/incomingInviteList/incomingInviteList';
 import OutgoingInviteList from '@/app/ui/outgoingInviteList/outgoingInviteList';
 
-const managingPage:PageObject = {
-    id: 0,
-    name: 'Друзья и ботики',
-    url: '/profile/manage',
-}
-
 export default async function ManagePage() {
     const authenticatedUser = await auth();
   return (
@@ -29,5 +23,3 @@ export default async function ManagePage() {
     </StyledContainer>
   );
 }
-
-export {managingPage}

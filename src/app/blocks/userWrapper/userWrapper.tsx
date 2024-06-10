@@ -15,7 +15,7 @@ export default async function UserWrapper({
         );
     } else {
         return (
-            {children}
+            <>{children}</>
         )
     }
 }
