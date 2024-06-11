@@ -10,8 +10,10 @@ CREATE TABLE "ChatAdapter" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "chatId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
+    "toUserId" TEXT NOT NULL,
     CONSTRAINT "ChatAdapter_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "ChatAdapter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT "ChatAdapter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "ChatAdapter_toUserId_fkey" FOREIGN KEY ("toUserId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -68,7 +70,9 @@ CREATE TABLE "User" (
     "name" TEXT,
     "email" TEXT,
     "emailVerified" DATETIME,
-    "image" TEXT
+    "image" TEXT,
+    "roomUrl" TEXT,
+    "bot" BOOLEAN
 );
 
 -- CreateTable

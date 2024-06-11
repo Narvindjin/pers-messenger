@@ -179,14 +179,26 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
 }
 
 export async function createChat(userId: string, receiverId: string) {
+    const existingChatAdapter = await prisma.chatAdapter.findFirst({
+        where: {
+            userId: userId,
+            toUserId: receiverId
+    }
+})
     try {
-        const chat = await prisma.chat.create({
-            data: {
-                membersAdapters: {
-                    create: [{
+        if (existingChatAdapter) {
+            const chat = await prisma.chat.create({
+                data: {
+                    membersAdapters: {
+                        create: [{
                             user: {
                                 connect: {
                                     id: userId
+                                }
+                            },
+                            toUser: {
+                                connect: {
+                                    id: receiverId
                                 }
                             }
                         }, {
@@ -194,16 +206,28 @@ export async function createChat(userId: string, receiverId: string) {
                                 connect: {
                                     id: receiverId
                                 }
+                            },
+                            toUser: {
+                                connect: {
+                                    id: userId
+                                }
                             }
                         }
-                    ]
-                }
-            },
-        });
-        return {
-            refresh: true,
-            success: true,
-            errorMessage: chat.id as string,
+                        ]
+                    }
+                },
+            });
+            return {
+                refresh: true,
+                success: true,
+                errorMessage: chat.id as string,
+            }
+        } else {
+            return {
+                refresh: true,
+                success: true,
+                errorMessage: 'Чат уже есть'
+            }
         }
     } catch (err) {
         console.log(err)

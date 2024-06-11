@@ -48,6 +48,58 @@ export async function getFriendList() {
     return null;
 }
 
+export async function addBotFriendHandler(
+    previousState: Result | null,
+    formData: FormData,
+): Promise<Result> {
+    const id = formData.get('botId');
+    const checker = await stringChecker(id);
+    if (checker) {
+        const filteredId = DOMPurify.sanitize(id as string);
+        const user = await getUser();
+        if (user) {
+            try {
+                const bot = prisma.user.findFirst({
+                    where: {
+                        id: filteredId,
+                        bot: true,
+                    }
+                });
+                if (bot) {
+                    await prisma.user.update({
+                        where: {id: user.id},
+                        data: {
+                            friends: {
+                                connect: {
+                                    id: filteredId
+                                }
+                            },
+                            friendOf: {
+                                connect: {
+                                    id: filteredId
+                                }
+                            },
+                        },
+                    })
+                    const chat = await createChat(user.id!, filteredId)
+                    return {
+                        refresh: true,
+                        success: true,
+                        errorMessage: 'Успех',
+                    }
+                }
+            } catch (err) {
+                console.log(err)
+                return {
+                    refresh: true,
+                    success: false,
+                    errorMessage: 'Ошибка при добавлении в френд лист',
+                }
+            }
+        }
+    }
+}
+
 export async function addToFriendList (userId: string, receiverId: string): Promise<Result> {
     try {
         const user = await prisma.user.update({
@@ -111,6 +163,24 @@ export async function removeFromFriendList (userId: string, receiverId: string):
                         }
                     },
                 },
+            });
+            const removedAdapters = await prisma.chatAdapter.deleteMany({
+                where: {
+                    AND: [{
+                      OR: [{
+                          userId: userId
+                      }, {
+                          userId: receiverId
+                      }]
+                    }, {
+                        OR: [{
+                            toUserId: userId
+                        }, {
+                            toUserId: receiverId
+                        }]
+                    }
+                    ]
+                }
             })
             return {
                 refresh: true,

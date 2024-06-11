@@ -15,6 +15,7 @@ export type NextApiResponseServerSocket = NextApiResponse & {
 export interface Friend {
     id: string,
     name: string
+    bot?: boolean,
 }
 
 export interface Invite {
@@ -39,6 +40,13 @@ export interface Chat {
     lastMessage: Message,
     writingArray: User[] | null,
     unread?: number,
+}
+
+export interface Bot {
+    id: string,
+    name: string,
+    roomUrl: string,
+    imageUrl: string,
 }
 
 export interface MessageHistory {

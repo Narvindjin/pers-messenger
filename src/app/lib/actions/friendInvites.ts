@@ -1,7 +1,7 @@
 'use server'
 import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
-import { Friend } from '../types';
+import {Bot, Friend} from '../types';
 import { getUser, Result, stringChecker } from '../actions';
 import { addToFriendList } from "./friendList";
 
@@ -101,6 +101,24 @@ export async function friendInviteHandler(
             errorMessage: 'Ошибка авторизации'
         }
     }
+}
+
+export async function getUnfriendedBots(){
+    const user = await getUser();
+    if (user) {
+        const botArray = prisma.user.findMany({
+            where: {
+                bot: true,
+                friendOf: {
+                    none: {
+                        id: user.id
+                    }
+                }
+            }
+        }) as Bot[]
+        return botArray
+    }
+    return [] as Bot[]
 }
 
 export async function deleteInviteHandler(

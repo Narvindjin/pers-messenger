@@ -9,15 +9,32 @@ export default async function FriendList() {
         const friendArray:Friend[] | null = await getFriendList();
         if (friendArray) {
             return (
-                <ul>
-                    {friendArray.map((friend) => {
-                        return (
-                            <li key={friend.id}>
-                                <RemoveFriendForm friend={friend}/>
-                            </li>
-                        )
-                    })}
-                </ul>
+                <div>
+                    <h1>Друзья:</h1>
+                    <ul>
+                        {friendArray.map((friend) => {
+                            if (!friend.bot) {
+                                return (
+                                    <li key={friend.id}>
+                                        <RemoveFriendForm friend={friend}/>
+                                    </li>
+                                )
+                            }
+                        })}
+                    </ul>
+                    <h2>Ботики:</h2>
+                    <ul>
+                        {friendArray.map((friend) => {
+                            if (friend.bot) {
+                                return (
+                                    <li key={friend.id}>
+                                        <RemoveFriendForm friend={friend}/>
+                                    </li>
+                                )
+                            }
+                        })}
+                    </ul>
+                </div>
             )
         }
         return null

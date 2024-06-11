@@ -1,5 +1,4 @@
 'use server'
-import { Socket } from "socket.io"
 import DOMPurify from "isomorphic-dompurify";
 
 import { stringChecker } from '../actions';
