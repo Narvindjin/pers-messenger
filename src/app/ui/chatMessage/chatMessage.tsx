@@ -28,7 +28,7 @@ export default function ChatMessage({message}: MessageInterface) {
     }, [message, chatContext.currentChat]);
 
     return (
-        <div>
+        <div style={message.unread?{backgroundColor:'darkgray'}: undefined}>
             <p>От: {fromUser?.id === authenticatedUser?.id? "Вы": fromUser?.name}</p>
             <p>Время: {message.postDate.toString()}</p>
             <p>Контент: {DOMPurify.sanitize(message.content)}</p>

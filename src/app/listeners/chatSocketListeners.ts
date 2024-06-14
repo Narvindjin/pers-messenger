@@ -110,6 +110,13 @@ export function initChatSocketListeners(context: chatContextInterface, socket: S
                 }
             } else if (!messageHistory.success) {
                 console.log(messageHistory.errorMessage)
+            } else if (context.chatList) {
+                const chatListCopy = context.chatList.slice(0)
+                const chat = chatListCopy.find((chat) => chat.id === messageHistory.messageHistory?.chatId)
+                if (chat && messageHistory.messageHistory?.messages.length > 0) {
+                    chat.lastMessage = messageHistory.messageHistory?.messages[messageHistory.messageHistory?.messages.length - 1]!;
+                    context.chatListSetter!(chatListCopy);
+                }
             }
         })
     }
