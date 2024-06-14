@@ -5,9 +5,16 @@ import { stringChecker } from '../actions';
 import prisma from "@/app/lib/prisma";
 import { sendMessage } from "./message";
 import {Server} from "node:net";
+import {requestBotResponse} from "@/app/lib/actions/botActions";
+
+
+interface UserInAdapter {
+    bot: boolean | undefined
+}
 
 export interface Adapter {
-    userId: string
+    userId: string;
+    user: UserInAdapter;
 }
 
 export async function sendMessageMiddleStep(
@@ -25,7 +32,12 @@ export async function sendMessageMiddleStep(
                 id: true,
                 membersAdapters: {
                     select: {
-                        userId: true
+                        userId: true,
+                        user: {
+                            select: {
+                                bot: true
+                            }
+                        }
                     }
                 },
             }
@@ -34,15 +46,31 @@ export async function sendMessageMiddleStep(
         const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
             let adapterArray: {id:string}[] = [];
+            let allAdaptersArray: {id:string}[] = [];
             for (const newAdapter of adapters) {
+                const adapterObject = {id: newAdapter.userId}
+                allAdaptersArray.push(adapterObject)
                 if (newAdapter.userId !== userId) {
-                    const adapterObject = {id: newAdapter.userId}
                     adapterArray.push(adapterObject)
                 }
             }
             const sentMessage = await sendMessage(message, chatId, userId, adapterArray);
             for (const adapter of adapters) {
                 socket.to(adapter.userId).emit('server-message', sentMessage)
+                if (adapter.user.bot) {
+                    for (const finalAdapter of adapters) {
+                        if (adapter.userId !== finalAdapter.userId) {
+                            socket.to(finalAdapter.userId).emit('server-typing', {chatId: chatId, userId: adapter.userId})
+                        }
+                    }
+                    const returnMessage = await requestBotResponse(message, chatId, adapter.userId, allAdaptersArray);
+                    for (const finalAdapter of adapters) {
+                        if (adapter.userId !== finalAdapter.userId) {
+                            socket.to(finalAdapter.userId).emit('server-stopped-typing', {chatId: chatId, userId: adapter.userId})
+                            socket.to(finalAdapter.userId).emit('server-message', returnMessage)
+                        }
+                    }
+                }
             }
 
         } else {

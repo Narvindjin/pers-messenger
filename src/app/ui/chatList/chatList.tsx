@@ -3,7 +3,7 @@ import ChatOpenerItem from "@/app/ui/chatList/chatOpenerItem";
 import React, {useContext, useEffect} from "react";
 import {Chat} from "@/app/lib/types";
 import {ChatContext} from "@/app/contexts/chatContext";
-import {initChatSocketListeners} from "@/app/ui/chatList/chatSocketListeners";
+import {initChatSocketListeners} from "@/app/listeners/chatSocketListeners";
 import {useSocket} from "@/app/providers/socketProvider";
 import {UserContext} from "@/app/contexts/userContext";
 

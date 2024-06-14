@@ -6,6 +6,7 @@ import FriendList from "@/app/ui/friendList/friendList";
 import IncomingInviteList from '@/app/ui/incomingInviteList/incomingInviteList';
 import OutgoingInviteList from '@/app/ui/outgoingInviteList/outgoingInviteList';
 import AddBotList from "@/app/ui/addBotList/addBotList";
+import ChangeNameForm from "@/app/ui/changeNameForm/changeNameForm";
 
 export default async function ManagePage() {
     const authenticatedUser = await auth();
@@ -13,6 +14,9 @@ export default async function ManagePage() {
     <StyledContainer>
         <div>
             <p>Мой ID: <span>{authenticatedUser?.user?.id}</span></p>
+            <div>
+                <ChangeNameForm/>
+            </div>
             <div>
                 <FriendList/>
             </div>

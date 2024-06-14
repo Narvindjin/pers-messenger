@@ -3,16 +3,10 @@ import EmailProvider from "next-auth/providers/nodemailer";
 import { authConfig } from './auth.config';
 import {PrismaAdapter} from "@auth/prisma-adapter";
 import prisma from './app/lib/prisma';
+import {Provider} from "@auth/core/providers";
 
 
-export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
-  debug: true,
-  adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "jwt",
-  },
-  providers: [
+const providers: Provider[] = [
     EmailProvider({
       server: {
         host: process.env.SMTP_HOST,
@@ -24,5 +18,25 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
       },
       from: process.env.EMAIL_FROM,
     }),
-  ],
+]
+
+export const providerMap = providers.map((provider) => {
+  if (typeof provider === "function") {
+    const providerData = provider()
+    return { id: providerData.id, name: providerData.name }
+  } else {
+    return { id: provider.id, name: provider.name }
+  }
+})
+
+
+
+export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  debug: true,
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
+  providers: providers
 });

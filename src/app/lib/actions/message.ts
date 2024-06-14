@@ -3,7 +3,6 @@ import prisma from "@/app/lib/prisma";
 import {getUser} from "@/app/lib/actions";
 import {Chat, MessageHistoryResponse} from "@/app/lib/types";
 import {User} from "next-auth";
-import {adapter} from "next/dist/server/web/adapter";
 
 export async function sendMessage(filteredMessage: string, chatId: string, senderId: string, adapterArray: {id: string}[]) {
     try {

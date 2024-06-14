@@ -67,9 +67,6 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
                 await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
             });
-            initedSocket.on('bot-message', async (msgObject: MessageInterface) => {
-
-            })
             initedSocket.on('get-history', async (chatId: string) => {
                 if (chatId) {
                     const messageHistory = await getMessageHistory(chatId, userId);

@@ -48,6 +48,42 @@ export async function getFriendList() {
     return null;
 }
 
+export async function changeName(
+    previousState: Result | null,
+    formData: FormData,
+): Promise<Result> {
+    const name = formData.get('name');
+    const checker = await stringChecker(name);
+    if (checker) {
+        const filteredName = DOMPurify.sanitize(name as string);
+        const user = await getUser();
+        if (user) {
+            try {
+                const newUser = prisma.user.update({
+                    where: {
+                        id: user.id
+                    },
+                    data: {
+                        name: filteredName
+                    }
+                });
+                return {
+                    refresh: true,
+                    success: true,
+                    errorMessage: 'Успех',
+                    }
+                } catch (err) {
+                console.log(err)
+                return {
+                    refresh: true,
+                    success: false,
+                    errorMessage: 'Ошибка при смене имени',
+                }
+            }
+        }
+    }
+}
+
 export async function addBotFriendHandler(
     previousState: Result | null,
     formData: FormData,
