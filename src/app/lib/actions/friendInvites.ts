@@ -4,6 +4,7 @@ import DOMPurify from "isomorphic-dompurify";
 import {Bot, Friend} from '../types';
 import { getUser, Result, stringChecker } from '../actions';
 import { addToFriendList } from "./friendList";
+import {createChat} from "@/app/lib/actions/message";
 
 
 type IncomingInvite = {

@@ -36,7 +36,7 @@ export interface MemberAdapter {
 export interface Chat {
     id: string,
     membersAdapters: MemberAdapter[],
-    messages: Message[] | null,
+    messages: Message[],
     lastMessage: Message,
     writingArray: User[] | null,
     unread?: number,

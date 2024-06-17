@@ -1,6 +1,6 @@
 'use client';
 
-import {useFormStatus, useFormState} from 'react-dom';
+import {useFormState, useFormStatus} from 'react-dom';
 import {addToFriendListHandler} from "@/app/lib/actions/friendList";
 import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
@@ -15,12 +15,13 @@ export default function InviteAcceptForm({invite}: Readonly<{
         router.refresh();
     }
 
+
     return (
         <form action={formAction as unknown as string}>
             <div>
-            <input type='text' name='inviteId' readOnly value={invite.id} />
-            <p>Инвайт от {invite.from!.name}</p>
-            <AcceptButton/>
+                <input type='text' name='inviteId' readOnly value={invite.id} />
+                <p>Инвайт от {invite.from!.name}</p>
+                <ButtonContainer/>
             </div>
             <div>
             {!error?.success && error?.errorMessage && (
@@ -31,12 +32,17 @@ export default function InviteAcceptForm({invite}: Readonly<{
     );
 }
 
-function AcceptButton() {
+function ButtonContainer() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
-            Принять инвайт
-        </button>
+        <div>
+            <button type={"submit"} name={'rejected'} value={'false'} aria-disabled={pending}>
+                Принять инвайт
+            </button>
+            <button type={"submit"} name={'rejected'} value={'true'} aria-disabled={pending}>
+                Отклонить инвайт
+            </button>
+        </div>
     );
 }

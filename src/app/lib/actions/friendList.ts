@@ -3,6 +3,7 @@ import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import { getUser, Result, stringChecker } from '../actions';
 import { createChat } from "./message";
+import {deleteInvite} from "@/app/lib/actions/friendInvites";
 
 export const getIsFriend = async(userId:string, receiverId:string) => {
     const isFriend = await prisma.user.findUnique({
@@ -274,7 +275,7 @@ export async function addToFriendListHandler(
     formData: FormData,
 ): Promise<Result> {
     const inviteId = formData.get('inviteId');
-    console.log(inviteId);
+    const rejected = formData.get('rejected')
     const checker = await stringChecker(inviteId);
     if (checker) {
         const filteredId = DOMPurify.sanitize(inviteId as string);
@@ -286,8 +287,12 @@ export async function addToFriendListHandler(
                         id: filteredId,
                         toId: user.id as string
                     },
-        })
-            return await addToFriendList(user.id as string, invite.fromId);
+            })
+                if (rejected === 'true') {
+                    return await deleteInvite(invite.fromId, filteredId)
+                } else {
+                    return await addToFriendList(user.id as string, invite.fromId);
+                }
             } catch (err) {
                 console.log(err)
                 return {

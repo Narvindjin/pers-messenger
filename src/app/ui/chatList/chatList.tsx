@@ -6,12 +6,13 @@ import {ChatContext} from "@/app/contexts/chatContext";
 import {initChatSocketListeners} from "@/app/listeners/chatSocketListeners";
 import {useSocket} from "@/app/providers/socketProvider";
 import {UserContext} from "@/app/contexts/userContext";
+import {observer} from "mobx-react-lite";
 
 interface ChatArrayObject {
     chatArray: Chat[];
 }
 
-export default function ChatList({chatArray}: ChatArrayObject) {
+function ChatList({chatArray}: ChatArrayObject) {
     const socket = useSocket();
     const chatContext = useContext(ChatContext)
     const userContext = useContext(UserContext)
@@ -35,3 +36,5 @@ export default function ChatList({chatArray}: ChatArrayObject) {
             </ul>
         )
 }
+
+export default observer(ChatList)

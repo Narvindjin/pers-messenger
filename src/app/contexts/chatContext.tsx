@@ -1,7 +1,62 @@
 import {createContext, Dispatch, SetStateAction, useState} from "react";
 import React from "react";
-import {Chat} from "@/app/lib/types";
+import {Chat, MessageHistoryResponse} from "@/app/lib/types";
 import {Message} from "@/app/lib/types";
+import {makeAutoObservable} from "mobx";
+import {adapter} from "next/dist/server/web/adapter";
+
+class ChatContextObject {
+    currentChat: Chat | null;
+    chatList: Chat[];
+    switchedTabs: boolean;
+    switchedTabsSetter: Dispatch<SetStateAction<boolean>>;
+
+    constructor() {
+        makeAutoObservable(this)
+    }
+
+    updateChatList(newChatList: Chat[]) {
+        this.chatList = newChatList;
+    }
+
+    setCurrentChat(chat: Chat) {
+        this.currentChat = chat;
+    }
+
+    handleNewMessageHistory(messageHistory: MessageHistoryResponse) {
+        let unreadMessagesMap = new Map;
+        if (messageHistory.success && messageHistory.messageHistory) {
+            for (const adapter of messageHistory.messageHistory.adapters) {
+                for (const unreadMessage of adapter.toUnreadMessages) {
+                    unreadMessagesMap.set(unreadMessage.id, true)
+                }
+            }
+            unreadMessagesMap.forEach((value, key) => {
+                for (const message of messageHistory.messageHistory?.messages) {
+                    if (message.id === key) {
+                        message.unread = true;
+                    }
+                }
+            })
+            if (this.currentChat && this.currentChat.id === messageHistory.messageHistory.chatId) {
+                this.currentChat.messages = messageHistory.messageHistory.messages;
+            } else {
+                const chat = this.chatList.find((chatInList) => {
+                    if (chatInList.id === messageHistory.messageHistory?.chatId) {
+                        return true
+                    }
+                    return false
+                })
+                if (chat) {
+                    chat.messages = messageHistory.messageHistory.messages;
+                }
+            }
+        } else if (!messageHistory.success) {
+            console.log(messageHistory.errorMessage)
+        }
+    }
+}
+
 export interface chatContextInterface {
     currentChat: Chat | null;
     currentChatSetter: Dispatch<SetStateAction<Chat | null>> | null;
@@ -13,21 +68,10 @@ export interface chatContextInterface {
     switchedTabsSetter: Dispatch<SetStateAction<boolean>> | null,
 }
 
-const initialState = {
-    currentChat: null,
-    currentChatSetter: null,
-    chatList: null,
-    chatListSetter: null,
-    changeMessageArray: null,
-    currentMessageArray: [],
-    switchedTabs: false,
-    switchedTabsSetter: null
-}
-
-export const ChatContext = createContext<chatContextInterface>(initialState)
+export const ChatContext = createContext<ChatContextObject | null>(null)
 
 
-const ChatContextContainer = ({ children }: React.PropsWithChildren) => {
+const ChatContextContainer = ({children}: React.PropsWithChildren) => {
     const [currentChat, updateCurrentChat] = useState<Chat | null>(null);
     const [currentMessageArray, editCurrentMessageArray] = useState<Message[]>([])
     const [chatList, updateChatList] = useState<Chat[] | null>(null);
