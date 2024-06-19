@@ -2,7 +2,8 @@
 import React, {useContext} from "react";
 import {useSocket} from "@/app/providers/socketProvider";
 import Link from "next/link";
-import {ProfileOuterContext} from "@/app/contexts/profileOuterContext";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
+import {observer} from "mobx-react-lite";
 
 interface PageSettings {
     id: number;
@@ -10,9 +11,9 @@ interface PageSettings {
     url: string;
 }
 
-export default function ChatLinkList() {
+function ChatLinkList() {
     const socket = useSocket();
-    const outerContext = useContext(ProfileOuterContext)
+    const chatContext = useContext(ChatContext) as ChatContextObject
     const managingPage:PageSettings = {
         id: 0,
         name: 'Друзья и ботики',
@@ -33,11 +34,13 @@ export default function ChatLinkList() {
     return (
         <ul>
             <li>
-                <Link onClick={() => clickHandler()} style={outerContext.unansweredNotifications?{color:'red'}: undefined} href={managingPage.url}>{managingPage.name}{outerContext.unansweredNotifications? ' нового:' + outerContext.unansweredNotifications: null}</Link>
+                <Link onClick={() => clickHandler()} style={chatContext.inviteIdArray.length > 0?{color:'red'}: undefined} href={managingPage.url}>{managingPage.name}{chatContext.inviteIdArray.length > 0? ' нового:' + chatContext.inviteIdArray.length: null}</Link>
             </li>
             <li>
-                <Link onClick={() => clickHandler()} style={outerContext.unreadMessages?{color:'red'}: undefined} href={chattingPage.url}>{chattingPage.name}{outerContext.unreadMessages? ' новых сообщений:' + outerContext.unreadMessages: null}</Link>
+                <Link onClick={() => clickHandler()} style={chatContext.unreadChats > 0?{color:'red'}: undefined} href={chattingPage.url}>{chattingPage.name}{chatContext.unreadChats > 0? ' новых сообщений:' + chatContext.unreadChats: null}</Link>
             </li>
         </ul>
     )
 }
+
+export default observer(ChatLinkList)

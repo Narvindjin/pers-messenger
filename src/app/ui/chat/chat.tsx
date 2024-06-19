@@ -2,36 +2,42 @@
 import React, {FormEvent, Fragment, useContext, useEffect} from 'react';
 import { useSocket } from '@/app/providers/socketProvider';
 import {MessageInterface} from "@/pages/api/socket/io";
-import {ChatContext} from "@/app/contexts/chatContext";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import ChatMessage from "@/app/ui/chatMessage/chatMessage";
+import {autorun} from "mobx";
+import {observer} from "mobx-react-lite";
 
 
-export default function Chat() {
+function Chat() {
     const socket = useSocket();
-    const chatContext = useContext(ChatContext);
+    const chatContext = useContext(ChatContext) as ChatContextObject;
 
     useEffect(() => {
-        if (socket.socket && socket.socket.connected && chatContext.switchedTabs) {
-            console.log('get-history');
-            chatContext.switchedTabsSetter!(false);
-            socket.socket.emit('get-history', chatContext.currentChat?.id);
+        if (socket.socket && socket.socket.connected) {
+            return autorun(() => {
+                if (chatContext.isTabSwitched) {
+                    console.log('get-history');
+                    chatContext.setIsTabSwitched(false)
+                    socket.socket.emit('get-history', chatContext.currentChat?.id);
+                }
+            })
         }
-    }, [socket.socket, chatContext.switchedTabs]);
+    }, [socket.socket]);
 
     const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
         if (socket.socket && socket.socket.connected && chatContext.currentChat) {
             if (evt.target.value.length < 1) {
                 console.log('stopped typing')
-                socket.socket.emit('stop-typing', chatContext.currentChat.id);
+                socket.socket.volatile.emit('stop-typing', chatContext.currentChat.id);
             } else {
                 console.log('typing')
-                socket.socket.emit('typing', chatContext.currentChat.id);
+                socket.socket.volatile.emit('typing', chatContext.currentChat.id);
             }
         }
     }
 
     const blurHandler = (evt : React.FocusEvent<HTMLInputElement>) => {
-        /*if (socket.socket && chatContext.currentChat) {
+        /*if (socket.socket && chatContext && chatContext.currentChat) {
             socket.socket.emit('stop-typing', chatContext.currentChat.id);
         }*/
     }
@@ -67,7 +73,7 @@ export default function Chat() {
             <div>
                 <p>История сообщений:</p>
                 <div>
-                    {chatContext.currentMessageArray.map((message) => {
+                    {chatContext.currentChat?.messages.map((message) => {
                         return(
                             <Fragment key={message.id}>
                                 <ChatMessage message={message}/>
@@ -92,3 +98,5 @@ export default function Chat() {
         </div>
     );
 }
+
+export default observer(Chat)

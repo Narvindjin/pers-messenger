@@ -1,22 +1,18 @@
 'use client'
 import React, {useContext, useEffect, useState} from "react";
 import {Chat, Message} from "@/app/lib/types";
-import {ChatContext} from "@/app/contexts/chatContext";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import {UserContext} from "@/app/contexts/userContext";
+import {observer} from "mobx-react-lite";
 
 interface ChatOpenerItemProps {
     chat: Chat;
 }
 
-export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
+function ChatOpenerItem({chat}:ChatOpenerItemProps) {
     const [persistentName, changeName] = useState('default');
-    const chatContext = useContext(ChatContext)
+    const chatContext = useContext(ChatContext) as ChatContextObject
     const user = useContext(UserContext)
-
-    const newChatSetter = () => {
-        chatContext.switchedTabsSetter!(true)
-        chatContext.currentChatSetter!(chat);
-    }
 
     const returnLastMessage = () => {
         let message: null | Message = null;
@@ -57,7 +53,9 @@ export default function ChatOpenerItem({chat}:ChatOpenerItemProps) {
             <h3>{persistentName}</h3>
             {chat.unread? <p>Непрочитанных сообщений: {chat.unread}</p>: null}
             {returnLastMessage()}
-            <button onClick={() => chatContext.currentChatSetter && chatContext.currentChat!==chat ? newChatSetter() : null}>Переключить чат</button>
+            <button onClick={() => chatContext.currentChat!==chat ? chatContext.setCurrentChat(chat) : null}>Переключить чат</button>
         </div>
     )
 }
+
+export default observer(ChatOpenerItem)

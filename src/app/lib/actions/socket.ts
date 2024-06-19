@@ -9,7 +9,8 @@ import {requestBotResponse} from "@/app/lib/actions/botActions";
 
 
 interface UserInAdapter {
-    bot: boolean | undefined
+    bot: boolean | undefined;
+    botPurpose: string | undefined;
 }
 
 export interface Adapter {
@@ -35,7 +36,8 @@ export async function sendMessageMiddleStep(
                         userId: true,
                         user: {
                             select: {
-                                bot: true
+                                bot: true,
+                                botPurpose: true
                             }
                         }
                     }
@@ -57,13 +59,13 @@ export async function sendMessageMiddleStep(
             const sentMessage = await sendMessage(message, chatId, userId, adapterArray);
             for (const adapter of adapters) {
                 socket.to(adapter.userId).emit('server-message', sentMessage)
-                if (adapter.user.bot) {
+                if (adapter.user.bot && adapter.user.botPurpose) {
                     for (const finalAdapter of adapters) {
                         if (adapter.userId !== finalAdapter.userId) {
                             socket.to(finalAdapter.userId).emit('server-typing', {chatId: chatId, userId: adapter.userId})
                         }
                     }
-                    const returnMessage = await requestBotResponse(message, chatId, adapter.userId, allAdaptersArray);
+                    const returnMessage = await requestBotResponse(message, chatId, adapter.userId, allAdaptersArray, adapter.user.botPurpose);
                     for (const finalAdapter of adapters) {
                         if (adapter.userId !== finalAdapter.userId) {
                             socket.to(finalAdapter.userId).emit('server-stopped-typing', {chatId: chatId, userId: adapter.userId})

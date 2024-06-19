@@ -2,7 +2,7 @@
 
 import {createContext, Dispatch, SetStateAction, useContext, useEffect, useState} from "react"
 import { io as socketClient } from "socket.io-client"
-import {Message} from "@/app/lib/types";
+import {Chat, Message} from "@/app/lib/types";
 
 export type SocketContextType = {
     socket: any | null,
@@ -19,9 +19,10 @@ export const useSocket = () => {
 }
 
 export const SocketProvider = ({
-    children
+    children, currentChat
 }: Readonly<{
-    children: React.ReactNode
+    children: React.ReactNode,
+    currentChat: Chat | null
 }>) => {
     const [socket, setSocket] = useState(null);
     const [isConnected, setIsConnected] = useState(false);

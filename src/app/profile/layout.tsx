@@ -1,6 +1,6 @@
 import { SocketProvider } from "../providers/socketProvider";
-import {ProfileOuterContextContainer} from "@/app/contexts/profileOuterContext";
 import ChatLinkList from "@/app/ui/chatLinkList/chatLinkList";
+import {ChatContextContainer} from "@/app/contexts/chatContext";
 
 type PageObject = {
     id: number;
@@ -16,12 +16,12 @@ export default async function ProfileLayout({
 
   return (
       <SocketProvider>
-                <div>
-                    <ProfileOuterContextContainer>
-                        <ChatLinkList/>
-                    </ProfileOuterContextContainer>
-                    {children}
-                </div>
+          <ChatContextContainer>
+              <div>
+                  <ChatLinkList/>
+                  {children}
+              </div>
+          </ChatContextContainer>
       </SocketProvider>
   );
 }

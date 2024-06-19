@@ -156,7 +156,7 @@ export async function deleteInvite (senderId: string, inviteId: string): Promise
         return {
             refresh: true,
             success: true,
-            errorMessage: 'Успех',
+            errorMessage: invite.toId,
         }
     } catch (err) {
         console.log(err)
@@ -191,7 +191,7 @@ async function createInvite (senderId: string, receiverId: string): Promise<Resu
         return {
             refresh: true,
             success: true,
-            errorMessage: 'Успех',
+            errorMessage: receiverId,
         }
     } catch (err) {
         console.log(err)
@@ -217,7 +217,8 @@ export async function getIncomingInviteList() {
                             id: true,
                             from: {
                                 select: {
-                                    name: true
+                                    name: true,
+                                    id: true,
                                 }
                             },
                         },

@@ -85,6 +85,7 @@ model User {
   image         String?
   roomUrl       String?
   bot           Boolean?
+  botPurpose    String?
   accounts      Account[]
   sessions      Session[]
   fromMessages  Message[] @relation("fromUser")

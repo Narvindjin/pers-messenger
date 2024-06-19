@@ -6,7 +6,8 @@ import { Session } from "next-auth";
 import {Chat, NextApiResponseServerSocket} from "@/app/lib/types";
 import {getOtherUsersInChat, sendMessageHandler} from "@/app/lib/actions/socket";
 import { decode } from "next-auth/jwt";
-import {deleteMessageHistory, getMessageHistory} from "@/app/lib/actions/message";
+import {clearUnread, deleteMessageHistory, getMessageHistory} from "@/app/lib/actions/message";
+import chat from "@/app/ui/chat/chat";
 
 export const config = {
     api: {
@@ -57,25 +58,44 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
         res.socket.server.io = socket;
         socket.on('connection', async (initedSocket) => {
             const userId = initedSocket.data.userId as string
+            let currentChatTyping: string | null = null;
             console.log('socket connected ', userId);
             initedSocket.join(userId);
-            initedSocket.on('client-new-invite', async () => {
-
+            initedSocket.on('client-new-invite', (receiverId: string) => {
+                socket.to(receiverId).emit('incoming-invite', userId)
             })
-            initedSocket.on('client-remove-invite', async () => {
-
+            initedSocket.on('client-remove-invite', (receiverId: string) => {
+                socket.to(receiverId).emit('remove-incoming-invite', userId)
             })
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
                 await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
             });
+            initedSocket.on('clear-unread', async (chatId: string) => {
+                await clearUnread(chatId, userId)
+
+            })
             initedSocket.on('get-history', async (chatId: string) => {
                 if (chatId) {
                     const messageHistory = await getMessageHistory(chatId, userId);
                     initedSocket.emit('server-history', messageHistory)
                 }
             });
+            async function stopTyping (chatId: string) {
+                const userIdArray = await getOtherUsersInChat(chatId, userId)
+                if (userIdArray) {
+                    currentChatTyping = null;
+                    userIdArray.forEach((user) => {
+                    socket.to(user).emit('server-stopped-typing', {chatId: chatId, userId: userId})
+                })
+                }
+            }
+
             initedSocket.on('typing', async (chatId: string) => {
                 if (chatId) {
+                    if (currentChatTyping) {
+                        await stopTyping(currentChatTyping)
+                    }
+                    currentChatTyping = chatId;
                     const userIdArray = await getOtherUsersInChat(chatId, userId)
                     userIdArray.forEach((user) => {
                         socket.to(user).emit('server-typing', {chatId: chatId, userId: userId})
@@ -84,10 +104,7 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             })
             initedSocket.on('stop-typing', async (chatId: string) => {
                 if (chatId) {
-                    const userIdArray = await getOtherUsersInChat(chatId, userId)
-                    userIdArray.forEach((user) => {
-                        socket.to(user).emit('server-stopped-typing', {chatId: chatId, userId: userId})
-                    })
+                    await stopTyping(chatId);
                 }
             })
             initedSocket.on('delete-history', async (chatId: string) => {
@@ -96,7 +113,10 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
                     initedSocket.emit('server-history', messageHistory)
                 }
             })
-            initedSocket.on('disconnect', () => {
+            initedSocket.on('disconnect', async () => {
+                if (currentChatTyping) {
+                    await stopTyping(currentChatTyping)
+                }
                 console.log(userId + ' disconnected');
               });
         })

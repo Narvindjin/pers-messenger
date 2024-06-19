@@ -1,12 +1,15 @@
 'use client'
 import React from 'react';
 import StyledContainer from "@/app/utils/container";
+import {observer} from "mobx-react-lite";
 
 
-export default function Profile() {
+function Profile() {
   return (
     <StyledContainer>
       testingProfilePage
     </StyledContainer>
   );
 }
+
+export default observer(Profile)

@@ -1,26 +1,86 @@
-import {createContext, Dispatch, SetStateAction, useState} from "react";
+import {createContext} from "react";
 import React from "react";
-import {Chat, MessageHistoryResponse} from "@/app/lib/types";
+import {Chat, MessageHistoryResponse, TypingInterface} from "@/app/lib/types";
 import {Message} from "@/app/lib/types";
 import {makeAutoObservable} from "mobx";
-import {adapter} from "next/dist/server/web/adapter";
 
-class ChatContextObject {
+export class ChatContextObject {
     currentChat: Chat | null;
     chatList: Chat[];
-    switchedTabs: boolean;
-    switchedTabsSetter: Dispatch<SetStateAction<boolean>>;
+    isTabSwitched: boolean;
+    unreadChats: number;
+    inviteIdArray: string[];
 
     constructor() {
+        this.chatList = [];
+        this.currentChat = null;
+        this.isTabSwitched = false;
+        this.unreadChats = 0;
+        this.inviteIdArray = []
         makeAutoObservable(this)
+    }
+
+    setIsTabSwitched(state: boolean) {
+        this.isTabSwitched = state;
     }
 
     updateChatList(newChatList: Chat[]) {
         this.chatList = newChatList;
+        this.unreadChats = this.chatList.filter((chat) => {
+            return chat.unread > 0
+        }).length
     }
 
     setCurrentChat(chat: Chat) {
         this.currentChat = chat;
+        this.setIsTabSwitched(true)
+    }
+
+    addMessage(message: Message, self?: boolean) {
+        const chat = this.chatList.find((chat) => chat.id === message.chatId)
+        if (chat) {
+            chat.messages.push(message);
+            chat.lastMessage = message;
+            if (chat !== this.currentChat && !self) {
+                chat.lastMessage.unread = true;
+                if (chat.unread === 0) {
+                    this.unreadChats++
+                }
+                chat.unread++
+            }
+        }
+    }
+
+    checkAndChangeWritingArray(typingObject: TypingInterface, add: boolean) {
+        let chat: Chat | null;
+        if (this.currentChat?.id === typingObject.chatId) {
+            chat = this.currentChat;
+        } else {
+            chat = this.chatList.find((chatToFind) => chatToFind.id === typingObject.chatId)
+        }
+        if (chat) {
+            const adapterForUser = chat.membersAdapters.find((adapter) => adapter.user.id === typingObject.userId)
+            if (adapterForUser) {
+                const user = adapterForUser.user;
+                if (add) {
+                    if (!Array.isArray(chat.writingArray)) {
+                        chat.writingArray = [user]
+                    } else if (!chat.writingArray?.includes(user)) {
+                        chat.writingArray.push(user);
+                    }
+                } else {
+                    if (chat.writingArray) {
+                        const indexOfUser = chat.writingArray.indexOf(user);
+                        if (indexOfUser > -1) {
+                            chat.writingArray.splice(indexOfUser, 1);
+                            if (chat.writingArray.length < 1) {
+                                chat.writingArray = null;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     handleNewMessageHistory(messageHistory: MessageHistoryResponse) {
@@ -40,6 +100,10 @@ class ChatContextObject {
             })
             if (this.currentChat && this.currentChat.id === messageHistory.messageHistory.chatId) {
                 this.currentChat.messages = messageHistory.messageHistory.messages;
+                if (this.currentChat.unread > 0 && this.unreadChats > 0) {
+                    this.unreadChats--
+                }
+                this.currentChat.unread = 0;
             } else {
                 const chat = this.chatList.find((chatInList) => {
                     if (chatInList.id === messageHistory.messageHistory?.chatId) {
@@ -57,50 +121,12 @@ class ChatContextObject {
     }
 }
 
-export interface chatContextInterface {
-    currentChat: Chat | null;
-    currentChatSetter: Dispatch<SetStateAction<Chat | null>> | null;
-    changeMessageArray: Dispatch<SetStateAction<Message[]>> | null;
-    currentMessageArray: Message[];
-    chatList: Chat[] | null;
-    chatListSetter: Dispatch<SetStateAction<Chat[] | null>> | null,
-    switchedTabs: boolean;
-    switchedTabsSetter: Dispatch<SetStateAction<boolean>> | null,
-}
-
 export const ChatContext = createContext<ChatContextObject | null>(null)
 
 
 const ChatContextContainer = ({children}: React.PropsWithChildren) => {
-    const [currentChat, updateCurrentChat] = useState<Chat | null>(null);
-    const [currentMessageArray, editCurrentMessageArray] = useState<Message[]>([])
-    const [chatList, updateChatList] = useState<Chat[] | null>(null);
-    const [switchedTabs, switchedTabsSetter] = useState<boolean>(false)
-
-    function changeCurrentChat(chat: Chat) {
-        if (chatList) {
-            const chatListCopy = chatList.slice(0)
-            const oldChat = chatListCopy.find((oldChat) => oldChat === chat)
-            oldChat.unread = 0;
-            updateChatList(chatListCopy);
-        }
-        updateCurrentChat(chat);
-        if (chat?.messages) {
-            editCurrentMessageArray(chat?.messages!)
-        }
-    }
-
     return (
-        <ChatContext.Provider value={{
-            currentChat: currentChat,
-            currentChatSetter: changeCurrentChat,
-            changeMessageArray: editCurrentMessageArray,
-            chatList: chatList,
-            chatListSetter: updateChatList,
-            currentMessageArray: currentMessageArray,
-            switchedTabs: switchedTabs,
-            switchedTabsSetter: switchedTabsSetter
-        }}>
+        <ChatContext.Provider value={new ChatContextObject()}>
             {children}
         </ChatContext.Provider>
     )

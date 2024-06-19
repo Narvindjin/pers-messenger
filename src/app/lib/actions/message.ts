@@ -136,16 +136,7 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
             }
             chat.chatId = chatId;
             if (authorized) {
-                    const updatedMembersAdapter = await prisma.chatAdapter.update({
-                        where: {
-                            id: userMemberAdapterId,
-                        },
-                        data: {
-                            toUnreadMessages:{
-                                set: [],
-                            }
-                        }
-                    })
+                await clearUnread(chatId, userId)
                 const userMember = chat.membersAdapters.find((member) => member.id === userId)
                 userMember.toUnreadMessages = [];
                 return {
@@ -175,6 +166,20 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
             success: false,
             errorMessage: 'Ошибка авторизации',
         }
+}
+
+export async function clearUnread(chatId: string, userId: string) {
+    const updatedMembersAdapter = await prisma.chatAdapter.update({
+        where: {
+            chatId: chatId,
+            userId: userId,
+        },
+        data: {
+            toUnreadMessages:{
+                set: [],
+            }
+        }
+    })
 }
 
 export async function createChat(userId: string, receiverId: string) {

@@ -4,17 +4,14 @@ import {useFormStatus, useFormState} from 'react-dom';
 import {deleteInviteHandler} from "@/app/lib/actions/friendInvites";
 import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
-import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import {useSocket} from "@/app/providers/socketProvider";
 
-export default function InviteDeleteForm({invite}: Readonly<{
+export default function AvatarUploadForm({invite}: Readonly<{
     invite: Invite
   }>) {
-    const [result, formAction] = useFormState(deleteInviteHandler, null);
-    const socket = useSocket();
+    const [result, formAction] = useFormState(uploadAvatarHandler, null);
     const router = useRouter();
     if (result?.refresh && result.success) {
-        socket.socket.emit('client-remove-invite', result.errorMessage)
         result.refresh = false;
         router.refresh();
     }

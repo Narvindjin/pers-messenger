@@ -1,15 +1,16 @@
 import {Message} from "@/app/lib/types";
 import {useContext, useEffect, useState} from "react";
-import {ChatContext} from "@/app/contexts/chatContext";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import {User} from "next-auth";
 import {UserContext} from "@/app/contexts/userContext";
 import DOMPurify from "isomorphic-dompurify";
+import {observer} from "mobx-react-lite";
 
 interface MessageInterface {
     message: Message
 }
-export default function ChatMessage({message}: MessageInterface) {
-    const chatContext = useContext(ChatContext);
+function ChatMessage({message}: MessageInterface) {
+    const chatContext = useContext(ChatContext) as ChatContextObject;
     const authenticatedUser = useContext(UserContext).user;
     const [fromUser, fromUserSetter] = useState<User | null>(null)
     useEffect(() => {
@@ -35,3 +36,5 @@ export default function ChatMessage({message}: MessageInterface) {
         </div>
     )
 }
+
+export default observer(ChatMessage)

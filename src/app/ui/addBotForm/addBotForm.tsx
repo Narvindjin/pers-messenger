@@ -4,12 +4,13 @@ import {useFormStatus, useFormState} from 'react-dom';
 import {useRouter} from 'next/navigation';
 import {Bot} from "@/app/lib/types";
 import {addBotFriendHandler} from "@/app/lib/actions/friendList";
+import {observer} from "mobx-react-lite";
 
 interface BotProps {
     bot: Bot
 }
 
-export default function AddBotForm({bot}: BotProps) {
+function AddBotForm({bot}: BotProps) {
     const [error, formAction] = useFormState(addBotFriendHandler, null);
     const router = useRouter();
     if (error?.refresh && error.success) {
@@ -44,3 +45,5 @@ function BefriendButton() {
         </button>
     );
 }
+
+export default observer(AddBotForm)

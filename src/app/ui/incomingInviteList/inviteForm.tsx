@@ -4,13 +4,20 @@ import {useFormState, useFormStatus} from 'react-dom';
 import {addToFriendListHandler} from "@/app/lib/actions/friendList";
 import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
+import {observer} from "mobx-react-lite";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 
-export default function InviteAcceptForm({invite}: Readonly<{
+function InviteAcceptForm({invite}: Readonly<{
     invite: Invite
   }>) {
+    const context = ChatContext as ChatContextObject
     const [error, formAction] = useFormState(addToFriendListHandler, null);
     const router = useRouter();
     if (error?.refresh && error.success) {
+        const index = context.inviteIdArray.findIndex(inviteId => inviteId === invite.from?.id)
+        if (index) {
+            context.inviteIdArray.splice(index, 1)
+        }
         error.refresh = false;
         router.refresh();
     }
@@ -46,3 +53,5 @@ function ButtonContainer() {
         </div>
     );
 }
+
+export default observer(InviteAcceptForm)

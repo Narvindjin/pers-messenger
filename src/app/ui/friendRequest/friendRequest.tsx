@@ -3,12 +3,17 @@
 import {useFormStatus, useFormState} from 'react-dom';
 import {friendInviteHandler} from "@/app/lib/actions/friendInvites";
 import { useRouter } from 'next/navigation';
+import {useSocket} from "@/app/providers/socketProvider";
+import {UserContext} from "@/app/contexts/userContext";
+import {useContext} from "react";
 
 export default function FriendRequestForm() {
-    const [error, formAction] = useFormState(friendInviteHandler, null);
+    const [result, formAction] = useFormState(friendInviteHandler, null);
     const router = useRouter();
-    if (error?.refresh && error.success) {
-        error.refresh = false;
+    const socket = useSocket();
+    if (result?.refresh && result.success) {
+        socket.socket.emit('client-new-invite', result.errorMessage)
+        result.refresh = false;
         router.refresh();
     }
 
@@ -33,8 +38,8 @@ export default function FriendRequestForm() {
                 </div>
                 <LoginButton/>
                 <div>
-                {!error?.success && error?.errorMessage && (
-                    <p>{error.errorMessage}</p>
+                {!result?.success && result?.errorMessage && (
+                    <p>{result.errorMessage}</p>
                 )}
                 </div>
             </div>

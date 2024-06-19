@@ -21,10 +21,12 @@ export interface Friend {
 export interface Invite {
     id: string,
     from?: {
-        name: string
+        name: string,
+        id: string,
     }
     to?: {
-        name: string
+        name: string,
+        id: string,
     }
 }
 

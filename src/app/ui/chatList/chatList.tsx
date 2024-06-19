@@ -2,7 +2,7 @@
 import ChatOpenerItem from "@/app/ui/chatList/chatOpenerItem";
 import React, {useContext, useEffect} from "react";
 import {Chat} from "@/app/lib/types";
-import {ChatContext} from "@/app/contexts/chatContext";
+import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import {initChatSocketListeners} from "@/app/listeners/chatSocketListeners";
 import {useSocket} from "@/app/providers/socketProvider";
 import {UserContext} from "@/app/contexts/userContext";
@@ -14,13 +14,11 @@ interface ChatArrayObject {
 
 function ChatList({chatArray}: ChatArrayObject) {
     const socket = useSocket();
-    const chatContext = useContext(ChatContext)
+    const chatContext = useContext(ChatContext) as ChatContextObject
     const userContext = useContext(UserContext)
     useEffect(() => {
-        if (chatContext.chatListSetter) {
-            chatContext.chatListSetter(chatArray);
-        }
-    }, [chatContext.chatListSetter, chatArray]);
+        chatContext?.updateChatList(chatArray)
+    }, [chatArray]);
     useEffect(() => {
         initChatSocketListeners(chatContext, socket, userContext);
     }, [socket, chatContext]);

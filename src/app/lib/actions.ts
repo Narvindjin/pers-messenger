@@ -84,6 +84,10 @@ export async function getUser () {
     }
 }
 
+export function normalizeString(string: string) {
+    return string.trim().toLowerCase()
+}
+
 export async function stringChecker(probablyString: any): Promise<boolean> {
     if (typeof(probablyString) === 'string') {
         return true

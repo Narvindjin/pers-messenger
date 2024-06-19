@@ -15,13 +15,21 @@ interface Bot {
     name: string,
     url: string,
     imageUrl: string,
+    botPurpose: string,
 }
 
-const botArray: Bot[] = [
+export const botArray: Bot[] = [
     {
         name: 'test',
         url: '/',
         imageUrl: '/',
+        botPurpose: ''
+    },
+    {
+        name: 'Автопосылатель сообщений',
+        url: '/',
+        imageUrl: '/',
+        botPurpose: 'autosend'
     }
 ]
 
@@ -34,7 +42,8 @@ async function initBots() {
                     name: bot.name,
                     bot: true,
                     roomUrl: bot.url,
-                    image: bot.imageUrl
+                    image: bot.imageUrl,
+                    botPurpose: bot.botPurpose,
                 }
             });
         }

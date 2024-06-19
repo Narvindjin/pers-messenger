@@ -2,16 +2,12 @@
 
 import {useFormStatus, useFormState} from 'react-dom';
 import {useRouter} from 'next/navigation';
-import {Bot} from "@/app/lib/types";
 import {changeName} from "@/app/lib/actions/friendList";
 import {useContext} from "react";
 import {UserContext} from "@/app/contexts/userContext";
+import {observer} from "mobx-react-lite";
 
-interface BotProps {
-    bot: Bot
-}
-
-export default function ChangeNameForm() {
+function ChangeNameForm() {
     const [error, formAction] = useFormState(changeName, null);
     const userContext = useContext(UserContext)
     const router = useRouter();
@@ -47,3 +43,5 @@ function ChangeNameButton() {
         </button>
     );
 }
+
+export default observer(ChangeNameForm)
