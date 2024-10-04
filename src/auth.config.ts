@@ -53,7 +53,7 @@ export const authConfig = {
         if (isLoggedIn) {
           return true;
         }
-        return false;
+        return NextResponse.redirect(new URL('/', request.nextUrl.origin))
       } else if (isOnSignIn && isLoggedIn) {
         return NextResponse.redirect(new URL('/', request.nextUrl.origin))
       }

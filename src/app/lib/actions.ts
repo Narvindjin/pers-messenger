@@ -14,7 +14,6 @@ import { ManagingSession } from '../profile/manage/page';
 import { getIncomingInviteList, getOutgoingInviteList, getUnfriendedBots } from './actions/friendInvites';
 import { getFriendList } from './actions/friendList';
 
-
 export type SignInEmailResult = {
     status: "error";
     errorMessage: string;
@@ -108,10 +107,9 @@ export async function getManagingSession(): Promise<ManagingSession | null> {
 }
 
 export async function signOutHandler(): Promise<SignInEmailResult> {
-    let signoutObject: string | null = null;
+    let url: string | null = null;
     try {
-        await signOut({ redirect: false });
-        signoutObject = 'signout'
+        url = await signOut({ redirect: false, redirectTo: "/" });
     } catch (error) {
         console.log(error)
         return {
@@ -119,9 +117,12 @@ export async function signOutHandler(): Promise<SignInEmailResult> {
             errorMessage: "Не удалось выйти из аккаунта",
         };
     }
-    if (signoutObject) {
-        redirect('/')
-    }
+    if (url) {
+        return {
+                status: "ok",
+                errorMessage: url.redirect
+            }
+        }
 }
 
 export async function getUser() {
@@ -229,6 +230,7 @@ export async function uploadAvatarHandler(
                 errorMessage: 'Успех'
             }
         } catch (err) {
+            console.log(err)
             return {
                 success: false,
                 refresh: false,

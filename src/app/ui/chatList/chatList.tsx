@@ -11,11 +11,13 @@ function ChatList({chats}:Readonly<{
   }>) {
     const chatContext = useContext(ChatContext) as ChatContextObject
     useEffect(() => {
-        if (chats.length !== chatContext.chatList.length || chats[chats.length - 1].id !== chatContext.chatList[chatContext.chatList.length - 1].id) {
+        if (chats.length > 0 && (chats.length !== chatContext.chatList.length || chats[chats.length - 1].id !== chatContext.chatList[chatContext.chatList.length - 1].id)) {
             chatContext.updateChatList(chats)
         }
     }, chats)
         return (
+            <>
+            {chats.length > 0?
             <ul>
                 {chatContext.chatList?.map((chat) => {
                     return (
@@ -24,7 +26,10 @@ function ChatList({chats}:Readonly<{
                         </li>
                     )
                 })}
-            </ul>
+            </ul>:
+            'Чатов нет'
+            }
+        </>
         )
 }
 

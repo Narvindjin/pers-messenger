@@ -2,7 +2,7 @@
 import styled from "styled-components";
 
 const StyledHeader = styled.div`
-    background-color: black;
+    background-color: ${(props) => props.theme.colorBackground};
     width: 100%;
 `
 
