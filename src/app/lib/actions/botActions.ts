@@ -1,36 +1,44 @@
 import {sendMessage} from "@/app/lib/actions/message";
 import {normalizeString} from "@/app/lib/actions";
+import { Bot } from "../types";
+import prisma from "@/app/lib/prisma";
+import { sendCharacterMessage } from "../charAi";
 
 
-const botMap: Map<string, number| null> = new Map();
+const chatMap: Map<string, NodeJS.Timeout| null> = new Map();
 
-export async function requestBotResponse(message: string, chatId: string, botId: string, adapterArray: {id:string}[], purpose: string) {
-    let response;
-    if (purpose === 'autosend') {
-        const normalizedMessage = normalizeString(message);
-        let isBotRemembered = botMap.has(botId);
-        if (!isBotRemembered) {
-            botMap.set(botId, null)
+export async function requestBotResponse(message: string, chatId: string, bot: Bot, adapterArray: {id:string}[], userId: string) {
+    let response: string | null = null;
+    if (bot.botPurpose === 'autosend') {
+        const normalizedMessage = await normalizeString(message);
+        const isChatRemembered = chatMap.has(chatId);
+        if (!isChatRemembered) {
+            chatMap.set(chatId, null)
         }
-        let botIntervalId = botMap.get(botId)
+        const botIntervalId = chatMap.get(chatId)
         if (normalizedMessage === 'start') {
             if (!botIntervalId) {
-                await sendMessage('test', chatId, botId, adapterArray)
-                botMap.set(botId, setInterval(async () => {
-                    await sendMessage('test', chatId, botId, adapterArray)
-                }, 5000))
+                await sendMessage('test', chatId, bot.id, adapterArray)
+               /*  const intervalId = setInterval(async () => {
+                    await sendMessage('test', chatId, bot.id, adapterArray)
+                }, 5000)
+                chatMap.set(chatId, intervalId) */
             }
         } else if (normalizedMessage === 'end') {
             if (botIntervalId) {
                 clearInterval(botIntervalId);
-                botMap.set(botId, null);
-                await sendMessage('stop-test', chatId, botId, adapterArray)
+                chatMap.set(chatId, null);
+                await sendMessage('stop-test', chatId, bot.id, adapterArray)
             }
         }
     } else {
-        setTimeout(async () => {
-            response = await sendMessage(message, chatId, botId, adapterArray)
-        }, 1000)
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+        const characterResponse = await sendCharacterMessage(bot, message, user)
+        response = await sendMessage(characterResponse, chatId, bot.id, adapterArray)
         return response
     }
 }

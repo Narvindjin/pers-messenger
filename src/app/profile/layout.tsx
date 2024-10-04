@@ -1,6 +1,8 @@
 import { SocketProvider } from "../providers/socketProvider";
+import React from "react";
 import ChatLinkList from "@/app/ui/chatLinkList/chatLinkList";
 import {ChatContextContainer} from "@/app/contexts/chatContext";
+import DataGetter from "../data-getters/profile/data-getter";
 
 type PageObject = {
     id: number;
@@ -17,10 +19,12 @@ export default async function ProfileLayout({
   return (
       <SocketProvider>
           <ChatContextContainer>
-              <div>
-                  <ChatLinkList/>
-                  {children}
-              </div>
+            <DataGetter>
+                <div>
+                    <ChatLinkList/>
+                    {children}
+                </div>
+              </DataGetter>
           </ChatContextContainer>
       </SocketProvider>
   );

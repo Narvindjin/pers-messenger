@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import {useFormStatus, useFormState} from 'react-dom';
 import {removeFriendHandler} from "@/app/lib/actions/friendList";
 import { Friend } from '@/app/lib/types';

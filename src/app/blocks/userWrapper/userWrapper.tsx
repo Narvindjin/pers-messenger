@@ -11,7 +11,7 @@ export default async function UserWrapper({
     const user = session?.user;
     if (user) {
         return (
-            <UserWrapperClient children={children} user={user}/>
+            <UserWrapperClient user={user}>{children}</UserWrapperClient>
         );
     } else {
         return (

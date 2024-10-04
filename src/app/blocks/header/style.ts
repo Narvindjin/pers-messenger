@@ -20,7 +20,7 @@ const StyledItem = styled.li`
     width: fit-content;
     padding: 4px;
     align-items: center;
-    color: white;
+    color: ${(props) => props.theme.colorText};
 `
 
 export {StyledHeader, StyledList, StyledItem};

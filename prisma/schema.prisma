@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -86,6 +86,7 @@ model User {
   roomUrl       String?
   bot           Boolean?
   botPurpose    String?
+  botDescription String?
   accounts      Account[]
   sessions      Session[]
   fromMessages  Message[] @relation("fromUser")

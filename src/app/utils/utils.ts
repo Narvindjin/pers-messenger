@@ -1,3 +1,7 @@
+'use client'
+import { throttle } from 'throttle-debounce';
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+
 export const validateEmail = (email:FormDataEntryValue | null) => {
     if (typeof email === 'string' || email instanceof String) {
         return String(email)
@@ -8,3 +12,39 @@ export const validateEmail = (email:FormDataEntryValue | null) => {
     }
     return null
   };
+
+  interface Window {
+    width: undefined | number;
+    height: undefined | number;
+  }
+
+  const initState: Window = {
+    width: undefined,
+    height: undefined
+  }
+
+  export function useWindowSize() {
+    const [windowSize, setWindowSize]: [Window, Dispatch<SetStateAction<Window>>] = useState(initState);
+  
+    useEffect(() => {
+      function handleResize() {
+        throttle(250, () => {
+          setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
+        })
+      }
+      
+      window.addEventListener("resize", handleResize);
+       
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      
+      // Remove event listener on cleanup
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    return windowSize;
+  }

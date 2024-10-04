@@ -1,22 +1,26 @@
-import {getUnfriendedBots} from "@/app/lib/actions/friendInvites";
+'use client'
+import React from "react";
 import AddBotForm from "@/app/ui/addBotForm/addBotForm";
+import { Bot } from "@/app/lib/types";
 
-export default async function AddBotList() {
-    const botArray = await getUnfriendedBots();
-    if (botArray.length > 0) {
+export default function AddBotList({botArray}:Readonly<{
+    botArray: Bot[];
+  }>) {
         return (
             <div>
                 <h2>Список недобавленных ботиков</h2>
-                <ul>
-                    {botArray.map((bot) => {
-                                return (
-                                    <li key={bot.id}>
-                                        <AddBotForm bot={bot}></AddBotForm>
-                                    </li>
-                                )
-                        })}
-                </ul>
+                {botArray.length > 0? 
+                    <ul>
+                        {botArray.map((bot) => {
+                                    return (
+                                        <li key={bot.id}>
+                                            <AddBotForm bot={bot}></AddBotForm>
+                                        </li>
+                                    )
+                            })}
+                    </ul>:
+                    'Все боты добавлены'
+                }
             </div>
         );
     }
-}

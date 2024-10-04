@@ -4,6 +4,7 @@ import { authConfig } from './auth.config';
 import {PrismaAdapter} from "@auth/prisma-adapter";
 import prisma from './app/lib/prisma';
 import {Provider} from "@auth/core/providers";
+import github from 'next-auth/providers/github';
 
 
 const providers: Provider[] = [
@@ -18,6 +19,7 @@ const providers: Provider[] = [
       },
       from: process.env.EMAIL_FROM,
     }),
+    github
 ]
 
 export const providerMap = providers.map((provider) => {

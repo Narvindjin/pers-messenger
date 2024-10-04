@@ -28,11 +28,18 @@ export interface Invite {
         name: string,
         id: string,
     }
+    accepted?: boolean
+}
+
+export interface IdAndRecipient {
+    id: string,
+    recipientId: string,
 }
 
 export interface MemberAdapter {
     user: User;
     toUnreadMessages: Message[];
+    toUserId?: string
 }
 
 export interface Chat {
@@ -47,14 +54,15 @@ export interface Chat {
 export interface Bot {
     id: string,
     name: string,
-    roomUrl: string,
+    roomUrl: string | null,
     imageUrl: string,
+    botPurpose: string,
 }
 
 export interface MessageHistory {
     messages: Message[],
     chatId: string,
-    adapters: MemberAdapter[];
+    membersAdapters: MemberAdapter[];
 }
 
 export interface Message {

@@ -1,32 +1,32 @@
-'use server'
-import {getOutgoingInviteList} from "@/app/lib/actions/friendInvites";
-import { Invite } from '@/app/lib/types';
+'use client'
+import React, { useContext, useEffect } from "react";
+import { ChatContext, ChatContextObject } from "@/app/contexts/chatContext";
 import InviteDeleteForm from "./inviteForm";
+import { observer } from "mobx-react-lite";
+import { Invite } from "@/app/lib/types";
 
-export default async function OutgoingInviteList() {
-    const constructInviteList = async () => {
-        const inviteArray:Invite[] | null = await getOutgoingInviteList();
-        if (inviteArray) {
-            return (
-                <>
-                    <h2>Исходящие приглашения:</h2>
-                    <ul>
-                        {inviteArray.map((invite) => {
-                            return (
-                                <li key={invite.id}>
-                                    <InviteDeleteForm invite={invite}/>
-                                </li>
-                            )
-                        })}
-                    </ul>
-                </>
-            )
-        }
-        return null
-    }
+function OutgoingInviteList({inviteList}: {
+    inviteList: Invite[]
+}) {
+    const chatContext = useContext(ChatContext) as ChatContextObject;
+    useEffect(() => {
+        chatContext.setOutgoingInviteArray(inviteList)
+    }, [inviteList])
+    const inviteArray = chatContext.outgoingInviteArray;
     return (
         <>
-            {await constructInviteList()}
+            <h2>Исходящие приглашения:</h2>
+            <ul>
+                {inviteArray.map((invite) => {
+                    return (
+                        <li key={invite.id}>
+                            <InviteDeleteForm invite={invite} />
+                        </li>
+                    )
+                })}
+            </ul>
         </>
     )
 }
+
+export default observer(OutgoingInviteList)

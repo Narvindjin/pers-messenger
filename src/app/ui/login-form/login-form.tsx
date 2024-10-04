@@ -1,47 +1,65 @@
 'use client';
 
-import {useFormStatus, useFormState} from 'react-dom';
-import {signInEmail} from "@/app/lib/actions";
+import { useFormStatus, useFormState } from 'react-dom';
+import { signInEmail, signInGithub } from "@/app/lib/actions";
+import React from 'react'
 
 export default function LoginForm() {
-    const [error, formAction] = useFormState(signInEmail, null);
+    const [OauthError, formAction] = useFormState(signInEmail, null);
+    const [error, formOauthAction] = useFormState(signInGithub, null);
 
     return (
-        <form action={formAction as unknown as string}>
-            <div>
+        <>
+            <form action={formOauthAction as unknown as string}>
                 <div>
+                    <LoginButton text='Login with Github' />
                     <div>
-                        <label htmlFor="email">
-                            Email
-                        </label>
-                        <div>
-                            <input
-                                id="email"
-                                type="email"
-                                name="email"
-                                placeholder="Enter your email address"
-                                required
-                            />
-                        </div>
+                        {OauthError?.status === "error" && (
+                            <p>{OauthError.errorMessage}</p>
+                        )}
                     </div>
                 </div>
-                <LoginButton/>
+            </form>
+            <form action={formAction as unknown as string}>
                 <div>
-                {error?.status === "error" && (
-      <p>{error.errorMessage}</p>
-    )}
+                    <div>
+                        <div>
+                            <label htmlFor="email">
+                                Email
+                            </label>
+                            <div>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="Enter your email address"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <LoginButton text='Login with Email' />
+                    <div>
+                        {error?.status === "error" && (
+                            <p>{error.errorMessage}</p>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </>
     );
 }
 
-function LoginButton() {
-    const {pending} = useFormStatus();
+interface LoginButtonInterface {
+    text: string
+}
+
+function LoginButton({ text }: LoginButtonInterface) {
+    const { pending } = useFormStatus();
 
     return (
         <button type={"submit"} aria-disabled={pending}>
-            Log in
+            {text}
         </button>
     );
 }

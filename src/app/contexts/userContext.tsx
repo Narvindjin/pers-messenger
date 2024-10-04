@@ -20,7 +20,6 @@ interface Props {
 
 const UserContextContainer = ({ children, initialUser }: Props) => {
     const [user, updateUser] = useState<User | null>(initialUser)
-
     return (
         <UserContext.Provider value={{
             user: user,

@@ -3,9 +3,11 @@ import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
 import { getUser, Result, stringChecker } from '../actions';
 import { createChat } from "./message";
-import {deleteInvite} from "@/app/lib/actions/friendInvites";
+import { deleteInvite } from "@/app/lib/actions/friendInvites";
+import { errorAuthorization, errorInvalidDataType, successResult } from "../errorTemplates";
+import { User } from "next-auth";
 
-export const getIsFriend = async(userId:string, receiverId:string) => {
+export const getIsFriend = async (userId: string, receiverId: string) => {
     const isFriend = await prisma.user.findUnique({
         where: {
             id: userId,
@@ -22,31 +24,28 @@ export const getIsFriend = async(userId:string, receiverId:string) => {
     return isFriend
 }
 
-export async function getFriendList() {
-    const user = await getUser();
-    if (user) {
-        try {
-            const userObject = await prisma.user.findUnique({
-                where: {
-                    id: user.id
-                },
-                include: {
-                    friendOf: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
+export async function getFriendList(user: User) {
+    try {
+        const userObject = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            include: {
+                friendOf: {
+                    select: {
+                        id: true,
+                        name: true,
+                        bot: true
                     },
-                }
-            });
+                },
+            }
+        });
 
-            return userObject.friendOf
-        } catch(error) {
-            console.log('error')
-            return null;
-        }
+        return userObject.friendOf
+    } catch (error) {
+        console.log('error')
+        return null;
     }
-    return null;
 }
 
 export async function changeName(
@@ -60,7 +59,7 @@ export async function changeName(
         const user = await getUser();
         if (user) {
             try {
-                const newUser = prisma.user.update({
+                const newUser = await prisma.user.update({
                     where: {
                         id: user.id
                     },
@@ -68,12 +67,9 @@ export async function changeName(
                         name: filteredName
                     }
                 });
-                return {
-                    refresh: true,
-                    success: true,
-                    errorMessage: 'Успех',
-                    }
-                } catch (err) {
+                console.log('changedUserName', newUser)
+                return successResult
+            } catch (err) {
                 console.log(err)
                 return {
                     refresh: true,
@@ -81,7 +77,11 @@ export async function changeName(
                     errorMessage: 'Ошибка при смене имени',
                 }
             }
+        } else {
+            return errorAuthorization
         }
+    } else {
+        return errorInvalidDataType
     }
 }
 
@@ -104,7 +104,7 @@ export async function addBotFriendHandler(
                 });
                 if (bot) {
                     await prisma.user.update({
-                        where: {id: user.id},
+                        where: { id: user.id },
                         data: {
                             friends: {
                                 connect: {
@@ -118,11 +118,13 @@ export async function addBotFriendHandler(
                             },
                         },
                     })
-                    const chat = await createChat(user.id!, filteredId)
+                    await createChat(user.id!, filteredId)
+                    return successResult
+                } else {
                     return {
                         refresh: true,
-                        success: true,
-                        errorMessage: 'Успех',
+                        success: false,
+                        errorMessage: '',
                     }
                 }
             } catch (err) {
@@ -133,47 +135,47 @@ export async function addBotFriendHandler(
                     errorMessage: 'Ошибка при добавлении в френд лист',
                 }
             }
+        } else {
+            return errorAuthorization
         }
+    } else {
+        return errorInvalidDataType
     }
 }
 
-export async function addToFriendList (userId: string, receiverId: string): Promise<Result> {
+export async function addToFriendList(userId: string, receiverId: string): Promise<Result> {
     try {
-        const user = await prisma.user.update({
-            where: {id: userId},
+        await prisma.user.update({
+            where: { id: userId },
             data: {
                 friends: {
                     connect: {
-                            id: receiverId
+                        id: receiverId
                     }
                 },
                 friendOf: {
                     connect: {
-                            id: receiverId
+                        id: receiverId
                     }
                 },
             },
         })
-        const inviteArray  = await prisma.invite.deleteMany({
+        await prisma.invite.deleteMany({
             where: {
-              OR: [
-                {
-                  fromId: userId,
-                  toId: receiverId,
-                },
-                {
-                    fromId: receiverId,
-                    toId: userId,
-                },
-              ],
+                OR: [
+                    {
+                        fromId: userId,
+                        toId: receiverId,
+                    },
+                    {
+                        fromId: receiverId,
+                        toId: userId,
+                    },
+                ],
             },
-          });
-        const chat = await createChat(userId, receiverId)
-        return {
-            refresh: true,
-            success: true,
-            errorMessage: 'Успех',
-        }
+        });
+        await createChat(userId, receiverId)
+        return successResult
     } catch (err) {
         console.log(err)
         return {
@@ -184,54 +186,50 @@ export async function addToFriendList (userId: string, receiverId: string): Prom
     }
 }
 
-export async function removeFromFriendList (userId: string, receiverId: string): Promise<Result> {
-        try {
-            const user = await prisma.user.update({
-                where: {id: userId},
-                data: {
-                    friends: {
-                        disconnect: {
-                                id: receiverId
-                        }
-                    },
-                    friendOf: {
-                        disconnect: {
-                                id: receiverId
-                        }
-                    },
-                },
-            });
-            const removedAdapters = await prisma.chatAdapter.deleteMany({
-                where: {
-                    AND: [{
-                      OR: [{
-                          userId: userId
-                      }, {
-                          userId: receiverId
-                      }]
-                    }, {
-                        OR: [{
-                            toUserId: userId
-                        }, {
-                            toUserId: receiverId
-                        }]
+export async function removeFromFriendList(userId: string, receiverId: string): Promise<Result> {
+    try {
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                friends: {
+                    disconnect: {
+                        id: receiverId
                     }
-                    ]
+                },
+                friendOf: {
+                    disconnect: {
+                        id: receiverId
+                    }
+                },
+            },
+        });
+        await prisma.chatAdapter.deleteMany({
+            where: {
+                AND: [{
+                    OR: [{
+                        userId: userId
+                    }, {
+                        userId: receiverId
+                    }]
+                }, {
+                    OR: [{
+                        toUserId: userId
+                    }, {
+                        toUserId: receiverId
+                    }]
                 }
-            })
-            return {
-                refresh: true,
-                success: true,
-                errorMessage: 'Успех',
+                ]
             }
-        } catch (err) {
-            console.log(err)
-            return {
-                refresh: true,
-                success: false,
-                errorMessage: 'Ошибка при удалении из френд листа',
-            }
+        })
+        return successResult
+    } catch (err) {
+        console.log(err)
+        return {
+            refresh: true,
+            success: false,
+            errorMessage: 'Ошибка при удалении из френд листа',
         }
+    }
 }
 
 export async function removeFriendHandler(
@@ -245,7 +243,7 @@ export async function removeFriendHandler(
         const user = await getUser();
         if (user) {
             try {
-            return await removeFromFriendList(user.id as string, filteredId);
+                return await removeFromFriendList(user.id as string, filteredId);
             } catch (err) {
                 console.log(err)
                 return {
@@ -255,18 +253,10 @@ export async function removeFriendHandler(
                 }
             }
         } else {
-            return {
-                refresh: true,
-                success: false,
-                errorMessage: 'Ошибка авторизации',
-            }
+            return errorAuthorization
         }
     } else {
-        return {
-                refresh: true,
-                success: false,
-                errorMessage: 'Вы присылаете мне какую-то дичь',
-            }
+        return errorInvalidDataType
     }
 }
 
@@ -287,9 +277,9 @@ export async function addToFriendListHandler(
                         id: filteredId,
                         toId: user.id as string
                     },
-            })
+                })
                 if (rejected === 'true') {
-                    return await deleteInvite(invite.fromId, filteredId)
+                    return await deleteInvite(user.id!, filteredId, false)
                 } else {
                     return await addToFriendList(user.id as string, invite.fromId);
                 }
@@ -302,17 +292,9 @@ export async function addToFriendListHandler(
                 }
             }
         } else {
-            return {
-                refresh: true,
-                success: false,
-                errorMessage: 'Ошибка авторизации',
-            }
+            return errorAuthorization
         }
     } else {
-        return {
-                refresh: true,
-                success: false,
-                errorMessage: 'Вы присылаете мне какую-то дичь',
-            }
+        return errorInvalidDataType
     }
 }

@@ -1,12 +1,14 @@
 import type { NextAuthConfig } from 'next-auth';
 import prisma from './app/lib/prisma';
+import { NextResponse } from 'next/server';
 
 export const authConfig = {
   pages: {
-    signIn: '/signin'
+    signIn: '/signin',
+    verifyRequest: '/verify-request'
   },
     callbacks: {
-    async jwt({user, trigger, token}) {
+    async jwt({user, trigger, token, session}) {
       if (trigger === "signIn" || trigger === 'signUp') {
         if (!user.name) {
           await prisma.user.update({
@@ -17,18 +19,43 @@ export const authConfig = {
               name: user.email,
             },
           })
+          token.name = user.email
+        }
+      }
+      if (trigger === 'update' && session) {
+        console.log(token.sub, session)
+        if (typeof(session) === 'string' && token.sub === session) {
+          const userFromDB = await prisma.user.findUnique({
+            where: {
+              id: session
+            },
+            select: {
+              email: true,
+              name: true,
+              image: true
+            }
+          })
+          if (userFromDB) {
+            token.email = userFromDB.email;
+            token.name = userFromDB.name;
+            token.picture = userFromDB.image;
+          }
+          console.log('newUser:', userFromDB);
         }
       }
       return token
     },
-    authorized({ auth, request: { nextUrl } }) {
+    async authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
-      const isOnProfile = nextUrl.pathname.startsWith('/profile');
+      const isOnProfile = request.nextUrl.pathname.startsWith('/profile');
+      const isOnSignIn = request.nextUrl.pathname.startsWith('/signin')
       if (isOnProfile) {
-        if (isLoggedIn) return true;
+        if (isLoggedIn) {
+          return true;
+        }
         return false;
-      } else if (isLoggedIn) {
-        return true;
+      } else if (isOnSignIn && isLoggedIn) {
+        return NextResponse.redirect(new URL('/', request.nextUrl.origin))
       }
       return true;
     },

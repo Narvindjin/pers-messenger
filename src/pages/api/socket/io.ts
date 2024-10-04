@@ -1,13 +1,14 @@
 import { Server as NetServer } from "http";
 import { NextApiRequest } from "next";
 import { Server as ServerIo } from "socket.io";
-import { Session } from "next-auth";
 
-import {Chat, NextApiResponseServerSocket} from "@/app/lib/types";
+import {NextApiResponseServerSocket} from "@/app/lib/types";
 import {getOtherUsersInChat, sendMessageHandler} from "@/app/lib/actions/socket";
 import { decode } from "next-auth/jwt";
 import {clearUnread, deleteMessageHistory, getMessageHistory} from "@/app/lib/actions/message";
-import chat from "@/app/ui/chat/chat";
+import { stringChecker } from "@/app/lib/actions";
+import { checkForInvite, deleteInvite } from "@/app/lib/actions/friendInvites";
+import { addToFriendList } from "@/app/lib/actions/friendList";
 
 export const config = {
     api: {
@@ -59,24 +60,26 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
         socket.on('connection', async (initedSocket) => {
             const userId = initedSocket.data.userId as string
             let currentChatTyping: string | null = null;
-            console.log('socket connected ', userId);
             initedSocket.join(userId);
-            initedSocket.on('client-new-invite', (receiverId: string) => {
-                socket.to(receiverId).emit('incoming-invite', userId)
-            })
-            initedSocket.on('client-remove-invite', (receiverId: string) => {
-                socket.to(receiverId).emit('remove-incoming-invite', userId)
-            })
             initedSocket.on('chat-message', async (msgObject: MessageInterface) => {
-                await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)
+                if (msgObject.chatId && await stringChecker(msgObject.chatId)) {
+                    await stopTyping(msgObject.chatId)
+                    await sendMessageHandler(socket, userId, msgObject.chatId, msgObject.message)   
+                }
             });
             initedSocket.on('clear-unread', async (chatId: string) => {
-                await clearUnread(chatId, userId)
-
+                if (chatId && await stringChecker(chatId)) {
+                    const adapterArray = await clearUnread(chatId, userId)
+                    adapterArray.forEach((adapter) => {
+                        if (adapter.toUserId) {
+                            socket.to(adapter.toUserId).emit('user-cleared-unread', chatId)
+                        }
+                    })
+                }
             })
-            initedSocket.on('get-history', async (chatId: string) => {
-                if (chatId) {
-                    const messageHistory = await getMessageHistory(chatId, userId);
+            initedSocket.on('get-history', async (chatId: string, messageFromEnd: number) => {
+                if (chatId && await stringChecker(chatId)) {
+                    const messageHistory = await getMessageHistory(chatId, userId, messageFromEnd);
                     initedSocket.emit('server-history', messageHistory)
                 }
             });
@@ -85,13 +88,14 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
                 if (userIdArray) {
                     currentChatTyping = null;
                     userIdArray.forEach((user) => {
-                    socket.to(user).emit('server-stopped-typing', {chatId: chatId, userId: userId})
-                })
+                        console.log('stopped-typing: ', user)
+                        socket.to(user).emit('server-stopped-typing', {chatId: chatId, userId: userId})
+                    })
                 }
             }
 
             initedSocket.on('typing', async (chatId: string) => {
-                if (chatId) {
+                if (chatId && await stringChecker(chatId) && chatId !== currentChatTyping) {
                     if (currentChatTyping) {
                         await stopTyping(currentChatTyping)
                     }
@@ -103,14 +107,43 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
                 }
             })
             initedSocket.on('stop-typing', async (chatId: string) => {
-                if (chatId) {
+                if (chatId && await stringChecker(chatId) && chatId === currentChatTyping) {
                     await stopTyping(chatId);
                 }
             })
             initedSocket.on('delete-history', async (chatId: string) => {
-                if (chatId) {
+                if (chatId && await stringChecker(chatId)) {
                     const messageHistory = await deleteMessageHistory(chatId, userId);
                     initedSocket.emit('server-history', messageHistory)
+                }
+            })
+            initedSocket.on('delete-invite', async (inviteId: string, fromSender: boolean) => {
+                if (inviteId && await stringChecker(inviteId)) {
+                    const deletedInvite = await deleteInvite(inviteId, userId, fromSender);
+                    if (deletedInvite.success) {
+                        socket.to(deletedInvite.invite!.to!.id).emit('client-deleted-incoming-invite', deletedInvite.invite)
+                        socket.to(deletedInvite.invite!.from!.id).emit('client-deleted-outgoing-invite', deletedInvite.invite)
+                    }
+                }
+            })
+            initedSocket.on('created-invite', async (inviteId: string) => {
+                if (inviteId && await stringChecker(inviteId)) {
+                    const createdInvite = await checkForInvite(inviteId, userId);
+                    if (createdInvite && createdInvite.to?.id) {
+                        socket.to(createdInvite.to?.id).emit('client-created-invite', createdInvite)
+                    }
+                }
+            })
+            initedSocket.on('accept-invite', async (inviteId: string) => {
+                if (inviteId && await stringChecker(inviteId)) {
+                    const invite = await checkForInvite(inviteId, userId, true);
+                    if (invite) {
+                        const friendResult = await addToFriendList(invite.from!.id, invite.to!.id)
+                        if (friendResult.success) {
+                            socket.to(invite.from!.id).emit('client-accepted-outgoing-invite', invite);
+                            socket.to(invite.to!.id).emit('client-accepted-incoming-invite', invite);
+                        }
+                    }
                 }
             })
             initedSocket.on('disconnect', async () => {

@@ -1,8 +1,10 @@
+import React from "react";
 import type { Metadata } from "next";
 import StyledComponentsRegistry from "@/app/lib/registry";
 import {StyledWrapper} from "@/app/style";
 import Header from "@/app/blocks/header/header";
-import UserWrapper from "@/app/blocks/userWrapper/userWrapper";
+import UserWrapper from "./blocks/userWrapper/userWrapper";
+import SessionWrapper from "./blocks/userWrapper/sessionWrapper";
 
 export const metadata: Metadata = {
   title: "Personal Next App",
@@ -21,12 +23,14 @@ export default function RootLayout({
                     <body id={'root'}>
                         {auth}
                         <StyledWrapper>
+                          <SessionWrapper>
                             <UserWrapper>
                                 <Header/>
                                 <main>
                                     {children}
                                 </main>
                             </UserWrapper>
+                          </SessionWrapper>
                         </StyledWrapper>
                     </body>
               </StyledComponentsRegistry>

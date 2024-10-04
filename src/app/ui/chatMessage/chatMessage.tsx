@@ -1,3 +1,4 @@
+import React from 'react';
 import {Message} from "@/app/lib/types";
 import {useContext, useEffect, useState} from "react";
 import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
@@ -16,7 +17,7 @@ function ChatMessage({message}: MessageInterface) {
     useEffect(() => {
         if (chatContext.currentChat?.membersAdapters) {
             const adapter = chatContext.currentChat?.membersAdapters.find((member) => member.user.id === message.fromId)
-            let user: User
+            let user: User | null = null;
             if (!adapter && authenticatedUser?.id === message.fromId) {
                 user = authenticatedUser;
             } else if (adapter) {

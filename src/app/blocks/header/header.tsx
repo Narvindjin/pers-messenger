@@ -22,9 +22,6 @@ export default function Header() {
                 <StyledItem>
                     {userObject.user? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}
                 </StyledItem>
-                <StyledItem>
-                    <Link href={"/api/auth/signin"}>В апи аутентификации</Link>
-                </StyledItem>
             </StyledList>
         </StyledContainer>
     </StyledHeader>

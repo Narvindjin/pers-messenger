@@ -1,10 +1,11 @@
 'use server'
 import prisma from "@/app/lib/prisma";
 import DOMPurify from "isomorphic-dompurify";
-import {Bot, Friend} from '../types';
+import {Bot, Friend, Invite} from '../types';
 import { getUser, Result, stringChecker } from '../actions';
 import { addToFriendList } from "./friendList";
-import {createChat} from "@/app/lib/actions/message";
+import { errorAuthorization, errorInvalidDataType } from "../errorTemplates";
+import { User } from "next-auth";
 
 
 type IncomingInvite = {
@@ -90,23 +91,13 @@ export async function friendInviteHandler(
             }
             return await createInvite(senderId, filteredId)
         }
-        return {
-            refresh: true,
-            success: false,
-            errorMessage: 'Ошибка авторизации',
-        }
+        return errorAuthorization
     } else {
-        return {
-            refresh: true,
-            success: false,
-            errorMessage: 'Ошибка авторизации'
-        }
+        return errorInvalidDataType
     }
 }
 
-export async function getUnfriendedBots(){
-    const user = await getUser();
-    if (user) {
+export async function getUnfriendedBots(user: User){
         const botArray = prisma.user.findMany({
             where: {
                 bot: true,
@@ -118,8 +109,6 @@ export async function getUnfriendedBots(){
             }
         }) as Bot[]
         return botArray
-    }
-    return [] as Bot[]
 }
 
 export async function deleteInviteHandler(
@@ -132,32 +121,69 @@ export async function deleteInviteHandler(
         const filteredId = DOMPurify.sanitize(id as string);
         const user = await getUser();
         if (user) {
-            return await deleteInvite(user.id as string, filteredId);
+            return await deleteInvite(filteredId, user.id!, true);
         }
-        return {
-            refresh: true,
-            success: false,
-            errorMessage: 'Ошибка авторизации',
-        }
+        return errorAuthorization
     } else {
-        return {
-            refresh: true,
-            success: false,
-            errorMessage: 'Вы присылаете мне какую-то дичь',
-        }
+        return errorInvalidDataType
     }
 }
 
-export async function deleteInvite (senderId: string, inviteId: string): Promise<Result> {
+export async function deleteInvite (inviteId: string, deleterId: string, fromSender: boolean): Promise<Result> {
     try {
-        const invite = await prisma.invite.delete({
-            where: {fromId: senderId, id: inviteId},
-        })
+        let invite: Invite;
+        if (fromSender) {
+            invite = await prisma.invite.delete({
+                where: {
+                    id: inviteId,
+                    fromId: deleterId,
+                },
+                select: {
+                    id: true,
+                    to: {
+                        select: {
+                            name: true,
+                            id: true,
+                        }
+                    },
+                    from: {
+                        select: {
+                            name: true,
+                            id: true,
+                        } 
+                    }
+                },
+            })
+        } else {
+            invite = await prisma.invite.delete({
+                where: {
+                    id: inviteId,
+                    toId: deleterId
+                },
+                select: {
+                    id: true,
+                    to: {
+                        select: {
+                            name: true,
+                            id: true,
+                        }
+                    },
+                    from: {
+                        select: {
+                            name: true,
+                            id: true,
+                        } 
+                    }
+                },
+            })
+        }
         return {
             refresh: true,
             success: true,
-            errorMessage: invite.toId,
+            errorMessage: invite.to!.id,
+            invite: invite
         }
+
     } catch (err) {
         console.log(err)
         return {
@@ -165,6 +191,57 @@ export async function deleteInvite (senderId: string, inviteId: string): Promise
             success: false,
             errorMessage: 'Ошибка при удалении инвайта',
         }
+    }
+}
+
+export async function checkForInvite(inviteId: string, userId: string, incoming?: boolean): Promise<false | Invite | null> {
+    try {
+        let invite = null;
+        if (incoming) {
+            invite = await prisma.invite.findUnique({
+                where: {id: inviteId, toId: userId},
+                select: {
+                    id: true,
+                    to: {
+                        select: {
+                            name: true,
+                            id: true,
+                        }
+                    },
+                    from: {
+                        select: {
+                            name: true,
+                            id: true,
+                        } 
+                    }
+                },
+            })
+        } else {
+            invite = await prisma.invite.findUnique({
+                where: {id: inviteId, fromId: userId},
+                select: {
+                    id: true,
+                    to: {
+                        select: {
+                            name: true,
+                            id: true,
+                        }
+                    },
+                    from: {
+                        select: {
+                            name: true,
+                            id: true,
+                        } 
+                    }
+                },
+            })
+        }
+        if (invite) {
+            return invite
+        }
+        return false
+    } catch (err) {
+        return null
     }
 }
 
@@ -186,12 +263,27 @@ async function createInvite (senderId: string, receiverId: string): Promise<Resu
                     }
                 },
             },
+            select: {
+                id: true,
+                from: {
+                    select: {
+                        name: true,
+                        id: true,
+                    }
+                },
+                to: {
+                    select: {
+                        name: true,
+                        id: true,
+                    }
+                }
+            }
         })
-        console.log(invite)
         return {
             refresh: true,
             success: true,
             errorMessage: receiverId,
+            invite: invite,
         }
     } catch (err) {
         console.log(err)
@@ -203,63 +295,72 @@ async function createInvite (senderId: string, receiverId: string): Promise<Resu
     }
 }
 
-export async function getIncomingInviteList() {
+export async function getIncomingInviteListWrapper() {
     const user = await getUser();
     if (user){
-        try {
-            const userObject = await prisma.user.findUnique({
-                where: {
-                    id: user.id
-                },
-                include: {
-                    incomingInvites: {
-                        select: {
-                            id: true,
-                            from: {
-                                select: {
-                                    name: true,
-                                    id: true,
-                                }
-                            },
-                        },
-                    },
-                }
-            });
-            return userObject.incomingInvites
-        } catch(error) {
-            console.log('invite error')
-            return null;
-        }
+        return getIncomingInviteList(user)
     }
-    return null;
+    return [];
 }
 
-export async function getOutgoingInviteList() {
-    const user = await getUser();
-    if (user){
-        try {
-            const userObject = await prisma.user.findUnique({
-                where: {
-                    id: user.id
-                },
-                include: {
-                    outgoingInvites: {
-                        select: {
-                            id: true,
-                            to: {
-                                select: {
-                                    name: true
-                                }
-                            },
+export async function getIncomingInviteList(user: User) {
+    try {
+        const userObject = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            include: {
+                incomingInvites: {
+                    select: {
+                        id: true,
+                        from: {
+                            select: {
+                                name: true,
+                                id: true,
+                            }
                         },
                     },
-                }
-            });
-            return userObject.outgoingInvites
-        } catch(error) {
-            console.log('invite error')
-            return null;
-        }
+                },
+            }
+        });
+        return userObject.incomingInvites
+    } catch(error) {
+        console.log('invite error')
+        return [];
     }
-    return null;
+}
+
+export async function getOutgoingInviteList(user: User) {
+    try {
+        const userObject = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            include: {
+                outgoingInvites: {
+                    select: {
+                        id: true,
+                        to: {
+                            select: {
+                                name: true,
+                                id: true
+                            }
+                        },
+                    },
+                },
+            }
+        });
+        return userObject.outgoingInvites
+    } catch(error) {
+        console.log('invite error')
+        return [];
+    }
+}
+
+export async function getOutgoingInviteListWrapper() {
+    const user = await getUser();
+    if (user){
+        return getOutgoingInviteList(user)
+    }
+    return [];
 }

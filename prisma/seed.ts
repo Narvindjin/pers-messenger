@@ -13,23 +13,26 @@ async function searchForBot(botName: string) {
 
 interface Bot {
     name: string,
-    url: string,
+    botId: string | null,
     imageUrl: string,
     botPurpose: string,
+    botDescription: string,
 }
 
 export const botArray: Bot[] = [
     {
-        name: 'test',
-        url: '/',
+        name: 'sanic',
+        botId: 'OkQhIQ0WNko1Wx-phdqhUFI0vV3NLIpC8L6Ryyz2-Xo',
         imageUrl: '/',
-        botPurpose: ''
+        botPurpose: '',
+        botDescription: 'Бот Саника'
     },
     {
         name: 'Автопосылатель сообщений',
-        url: '/',
+        botId: null,
         imageUrl: '/',
-        botPurpose: 'autosend'
+        botPurpose: 'autosend',
+        botDescription: 'Автопосылка сообщений, отправить start для начала, end для окончания'
     }
 ]
 
@@ -37,11 +40,11 @@ async function initBots() {
     for (const bot of botArray) {
         const botInDB = await searchForBot(bot.name)
         if (!botInDB) {
-            const newBot = await prisma.user.create({
+            await prisma.user.create({
                 data: {
                     name: bot.name,
                     bot: true,
-                    roomUrl: bot.url,
+                    roomUrl: bot.botId,
                     image: bot.imageUrl,
                     botPurpose: bot.botPurpose,
                 }

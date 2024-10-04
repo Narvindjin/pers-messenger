@@ -1,8 +1,9 @@
 'use server'
 import prisma from "@/app/lib/prisma";
-import {getUser} from "@/app/lib/actions";
-import {Chat, MessageHistoryResponse} from "@/app/lib/types";
-import {User} from "next-auth";
+import {getUser, stringChecker} from "@/app/lib/actions";
+import {Chat, MemberAdapter, MessageHistoryResponse} from "@/app/lib/types";
+import { errorAuthorization, errorInvalidDataType } from "../errorTemplates";
+import DOMPurify from "isomorphic-dompurify";
 
 export async function sendMessage(filteredMessage: string, chatId: string, senderId: string, adapterArray: {id: string}[]) {
     try {
@@ -20,9 +21,7 @@ export async function sendMessage(filteredMessage: string, chatId: string, sende
                     } 
                 },
                 unreadByUserAdapters: {
-                    connect: {
-                        id: adapterArray
-                    }
+                    connect: adapterArray.map(c => ({ id: c.id })) || [],
                 }
             },
         })
@@ -58,7 +57,7 @@ export async function deleteMessageHistory(chatId: string, userId: string):Promi
                 }
             }
             if (authorized) {
-                const deletedMessages = await prisma.message.deleteMany({
+                await prisma.message.deleteMany({
                     where: {
                         chatId: chatId,
                     },
@@ -74,11 +73,7 @@ export async function deleteMessageHistory(chatId: string, userId: string):Promi
                     },
                 }
             } else {
-                return {
-                    refresh: false,
-                    success: false,
-                    errorMessage: 'Ошибка аутентификации',
-                }
+                return errorAuthorization
             }
         } catch (err) {
             console.log(err)
@@ -90,15 +85,49 @@ export async function deleteMessageHistory(chatId: string, userId: string):Promi
         }
 }
 
-export async function getMessageHistory(chatId: string, userId?: string):Promise<MessageHistoryResponse> {
-    let user: User | null
-    if (!userId) {
-        user = await getUser();
+export async function messageHistoryHandler(
+    previousState: MessageHistoryResponse | null,
+    formData: FormData,
+): Promise<MessageHistoryResponse>  {
+    const chatId = formData.get('chatId');
+    const checker = await stringChecker(chatId);
+    if (checker) {
+        const filteredId = DOMPurify.sanitize(chatId as string);
+        const user = await getUser();
+        if (user && user.id) {
+            try {
+            return await getMessageHistory(filteredId, user.id);
+            } catch (err) {
+                console.log(err)
+                return {
+                    refresh: true,
+                    success: false,
+                    errorMessage: 'Ошибка в вызове истории сообщений',
+                }
+            }
+        } else {
+            return errorAuthorization
+        }
+    } else {
+        return errorInvalidDataType
     }
-    if (user) {
-        userId = user.id
+}
+
+export async function getMessageHistoryClient(chatId: string) {
+    const checker = await stringChecker(chatId);
+    if (checker) {
+        const user = await getUser();
+        if (user && user.id) {
+            getMessageHistory(chatId, user.id);
+        } else {
+            return errorAuthorization;
+        }
+    } else {
+        return errorInvalidDataType;
     }
-    if (userId) {
+}
+
+export async function getMessageHistory(chatId: string, userId: string, messageFromEnd?: number):Promise<MessageHistoryResponse> {
         try {
             const chat = await prisma.chat.findUnique({
                 where: {
@@ -111,7 +140,8 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                             id: true,
                             user: {
                                 select: {
-                                    id: true
+                                    id: true,
+                                    bot: true
                                 }
                             },
                             toUnreadMessages: {
@@ -123,22 +153,36 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                     }
                 }
             });
-            let userMemberAdapterId: string;
             let authorized = false;
             for (const adapter of chat.membersAdapters) {
-                if (adapter.user.id === user?.id || userId === adapter.user.id) {
+                if (userId === adapter.user.id) {
                     authorized = true;
-                    userMemberAdapterId = adapter.user.id
                 }
             }
             if (chat.messages.length > 20) {
-                chat.messages.length = 20;
+                chat.messages.slice(chat)
             }
             chat.chatId = chatId;
             if (authorized) {
                 await clearUnread(chatId, userId)
-                const userMember = chat.membersAdapters.find((member) => member.id === userId)
-                userMember.toUnreadMessages = [];
+                console.log(chat.membersAdapters, userId)
+                const userMember = chat.membersAdapters.find((member) => member.user.id === userId)
+                if (userMember) {
+                    userMember.toUnreadMessages = [];
+                }
+                const botMembers = chat.membersAdapters.filter((member) => {
+                    if (member.user.bot) {
+                        return true
+                    }
+                    return false
+                })
+                if (botMembers.length > 0) {
+                    for (const member of botMembers) {
+                        if (member.toUnreadMessages.length > 0) {
+                            member.toUnreadMessages = [];
+                        }
+                    }
+                }
                 return {
                     refresh: false,
                     success: true,
@@ -146,11 +190,7 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                     messageHistory: chat,
                 }
             } else {
-                return {
-                    refresh: false,
-                    success: false,
-                    errorMessage: 'Ошибка аутентификации',
-                }
+                return errorAuthorization
             }
         } catch (err) {
             console.log(err)
@@ -160,26 +200,33 @@ export async function getMessageHistory(chatId: string, userId?: string):Promise
                 errorMessage: 'Такого чата не существует',
             }
         }
-    }
-    return {
-            refresh: true,
-            success: false,
-            errorMessage: 'Ошибка авторизации',
-        }
 }
 
 export async function clearUnread(chatId: string, userId: string) {
-    const updatedMembersAdapter = await prisma.chatAdapter.update({
+    const adapterArray = await prisma.chatAdapter.findMany({
         where: {
             chatId: chatId,
             userId: userId,
-        },
-        data: {
-            toUnreadMessages:{
-                set: [],
-            }
         }
     })
+    const returnAdapterArray:MemberAdapter[] = []
+    for (const adapter of adapterArray) {
+        const newAdapter = await prisma.chatAdapter.update({
+            where: {
+                id: adapter.id
+            },
+            data: {
+                toUnreadMessages: {
+                    set: [],
+                },
+            },
+            include: {
+                toUnreadMessages: true,
+            }
+        }) as MemberAdapter
+        returnAdapterArray.push(newAdapter)
+    }
+    return returnAdapterArray
 }
 
 export async function createChat(userId: string, receiverId: string) {
@@ -190,7 +237,7 @@ export async function createChat(userId: string, receiverId: string) {
     }
 })
     try {
-        if (existingChatAdapter) {
+        if (!existingChatAdapter) {
             const chat = await prisma.chat.create({
                 data: {
                     membersAdapters: {
@@ -306,20 +353,17 @@ export async function getChatList () {
                 const chat = object.chat;
                 chat.unread = 0;
                 chat.lastMessage = chat.messages[0];
-                chat.messages = null;
+                chat.messages = [];
                 if (object.toUnreadMessages) {
                     chat.unread = object.toUnreadMessages.length;
                 }
                 arrayForReturn.push(chat as Chat);
             }
-            if (arrayForReturn.length < 1) {
-                return null
-            }
             return arrayForReturn
         } catch(error) {
             console.log(error)
-            return null;
+            return [];
         }
     }
-    return null;
+    return [];
 }

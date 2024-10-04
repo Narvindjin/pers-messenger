@@ -1,14 +1,14 @@
 import React from 'react';
 import StyledContainer from "@/app/utils/container";
-import ChatListWrapper from "@/app/ui/chatList/chatListWrapper";
-import Chat from "@/app/ui/chat/chat";
+import { getChatList } from '@/app/lib/actions/message';
+import ChatController from './chatController';
 
 
 export default async function ChatPage() {
+    const chatList = await getChatList();
     return (
         <StyledContainer>
-                <ChatListWrapper/>
-                <Chat></Chat>
+                <ChatController chatList={chatList}></ChatController>
         </StyledContainer>
     );
 }

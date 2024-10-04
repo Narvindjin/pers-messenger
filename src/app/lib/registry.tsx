@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useServerInsertedHTML } from 'next/navigation'
 import {ServerStyleSheet, StyleSheetManager, ThemeProvider} from 'styled-components'
-import theme from "@/app/global/theme";
+import {lightTheme} from "@/app/global/theme";
 import GlobalStyle from "@/app/global/globalStyles";
 
 export default function StyledComponentsRegistry({
@@ -25,7 +25,7 @@ export default function StyledComponentsRegistry({
 
   return (
     <StyleSheetManager sheet={styledComponentsStyleSheet.instance}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={lightTheme}>
             <GlobalStyle></GlobalStyle>
             {children}
         </ThemeProvider>

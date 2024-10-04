@@ -1,11 +1,11 @@
 'use server'
 import DOMPurify from "isomorphic-dompurify";
-
 import { stringChecker } from '../actions';
 import prisma from "@/app/lib/prisma";
 import { sendMessage } from "./message";
-import {Server} from "node:net";
+import { Server as ServerIo } from "socket.io";
 import {requestBotResponse} from "@/app/lib/actions/botActions";
+import { Bot } from "../types";
 
 
 interface UserInAdapter {
@@ -14,12 +14,13 @@ interface UserInAdapter {
 }
 
 export interface Adapter {
+    id: string;
     userId: string;
     user: UserInAdapter;
 }
 
 export async function sendMessageMiddleStep(
-    socket: Server,
+    socket: ServerIo,
     userId: string,
     chatId: string,
     message: string
@@ -33,11 +34,19 @@ export async function sendMessageMiddleStep(
                 id: true,
                 membersAdapters: {
                     select: {
+                        id: true,
                         userId: true,
                         user: {
                             select: {
                                 bot: true,
-                                botPurpose: true
+                                botPurpose: true,
+                                roomUrl: true,
+                                name: true,
+                            }
+                        },
+                        toUnreadMessages: {
+                            select: {
+                                id: true
                             }
                         }
                     }
@@ -47,10 +56,10 @@ export async function sendMessageMiddleStep(
         const adapters = chat.membersAdapters as Adapter[];
         const adapter = adapters.find((adapter) => adapter.userId === userId)
         if (adapter) {
-            let adapterArray: {id:string}[] = [];
-            let allAdaptersArray: {id:string}[] = [];
+            const adapterArray: {id:string}[] = [];
+            const allAdaptersArray: {id:string}[] = [];
             for (const newAdapter of adapters) {
-                const adapterObject = {id: newAdapter.userId}
+                const adapterObject = {id: newAdapter.id}
                 allAdaptersArray.push(adapterObject)
                 if (newAdapter.userId !== userId) {
                     adapterArray.push(adapterObject)
@@ -58,14 +67,21 @@ export async function sendMessageMiddleStep(
             }
             const sentMessage = await sendMessage(message, chatId, userId, adapterArray);
             for (const adapter of adapters) {
-                socket.to(adapter.userId).emit('server-message', sentMessage)
-                if (adapter.user.bot && adapter.user.botPurpose) {
+                if (!adapter.user.bot) {
+                    socket.to(adapter.userId).emit('server-message', sentMessage)
+                }
+            }
+            for (const adapter of adapters) {
+                if (adapter.user.bot) {
+                    const bot = adapter.user as unknown as Bot
                     for (const finalAdapter of adapters) {
                         if (adapter.userId !== finalAdapter.userId) {
                             socket.to(finalAdapter.userId).emit('server-typing', {chatId: chatId, userId: adapter.userId})
+                            socket.to(finalAdapter.userId).emit('user-cleared-unread', chatId)
                         }
                     }
-                    const returnMessage = await requestBotResponse(message, chatId, adapter.userId, allAdaptersArray, adapter.user.botPurpose);
+                    bot.id = adapter.userId;
+                    const returnMessage = await requestBotResponse(message, chatId, bot, allAdaptersArray, userId);
                     for (const finalAdapter of adapters) {
                         if (adapter.userId !== finalAdapter.userId) {
                             socket.to(finalAdapter.userId).emit('server-stopped-typing', {chatId: chatId, userId: adapter.userId})
@@ -74,7 +90,6 @@ export async function sendMessageMiddleStep(
                     }
                 }
             }
-
         } else {
             throw new Error('Ошибка авторизации')
         }
@@ -123,7 +138,7 @@ export async function getOtherUsersInChat(chatId: string, userId: string) {
 }
 
 export async function sendMessageHandler(
-    socket: Server,
+    socket: ServerIo,
     userId: string,
     chatId: any,
     message: any
@@ -141,7 +156,7 @@ export async function sendMessageHandler(
 }
 
 export async function getGeneralInfo(
-    userId
+    userId: any
 ) {
     const checker = await stringChecker(userId);
     if (checker) {
@@ -159,6 +174,6 @@ export async function getGeneralInfo(
             }
         });
     } else {
-        throw new Error('Присылается какя-то дичь')
+        throw new Error('Присылается какая-то дичь')
     }
 }

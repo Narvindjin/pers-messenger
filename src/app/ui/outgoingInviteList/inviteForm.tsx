@@ -4,33 +4,37 @@ import {useFormStatus, useFormState} from 'react-dom';
 import {deleteInviteHandler} from "@/app/lib/actions/friendInvites";
 import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
-import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
-import {useSocket} from "@/app/providers/socketProvider";
+import React, { FormEvent } from 'react';
+import { useSocket } from '@/app/providers/socketProvider';
 
 export default function InviteDeleteForm({invite}: Readonly<{
     invite: Invite
   }>) {
-    const [result, formAction] = useFormState(deleteInviteHandler, null);
     const socket = useSocket();
+    const [result, formAction] = useFormState(deleteInviteHandler, null);
     const router = useRouter();
     if (result?.refresh && result.success) {
-        socket.socket.emit('client-remove-invite', result.errorMessage)
         result.refresh = false;
         router.refresh();
     }
 
+    const submitHandler = (evt:FormEvent<HTMLFormElement>) => {
+        evt.preventDefault();
+        if (socket.socket && socket.socket.connected) {
+            socket.socket.emit('delete-invite', invite.id, true)
+        }
+    }
+
     return (
-        <form action={formAction as unknown as string}>
+        <form action={formAction as unknown as string} onSubmit={submitHandler}>
             <div>
             <input type='text' name='inviteId' readOnly value={invite.id} />
             <p>Инвайт для {invite!.to!.name}</p>
-            <DeleteButton/>
+            {invite.accepted? <p>Инвайт принят</p>: <DeleteButton/>}
             </div>
-            <div>
                 {!result?.success && result?.errorMessage && (
                     <p>{result.errorMessage}</p>
                 )}
-            </div>
         </form>
     );
 }

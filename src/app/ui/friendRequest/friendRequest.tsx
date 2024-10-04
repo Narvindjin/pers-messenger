@@ -2,19 +2,22 @@
 
 import {useFormStatus, useFormState} from 'react-dom';
 import {friendInviteHandler} from "@/app/lib/actions/friendInvites";
-import { useRouter } from 'next/navigation';
-import {useSocket} from "@/app/providers/socketProvider";
-import {UserContext} from "@/app/contexts/userContext";
-import {useContext} from "react";
+import React, { useContext } from 'react'
+import { useSocket } from '@/app/providers/socketProvider';
+import { ChatContext } from '@/app/contexts/chatContext';
 
 export default function FriendRequestForm() {
     const [result, formAction] = useFormState(friendInviteHandler, null);
-    const router = useRouter();
     const socket = useSocket();
-    if (result?.refresh && result.success) {
-        socket.socket.emit('client-new-invite', result.errorMessage)
-        result.refresh = false;
-        router.refresh();
+    const chatContext = useContext(ChatContext)
+    if (result?.invite && result.success) {
+        socket.socket.emit('created-invite', result.invite?.id)
+        let inviteArray = chatContext?.outgoingInviteArray.slice();
+        if (!inviteArray) {
+            inviteArray = []
+        }
+        inviteArray?.push(result.invite);
+        chatContext?.setOutgoingInviteArray(inviteArray!);
     }
 
     return (

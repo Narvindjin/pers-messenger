@@ -1,5 +1,5 @@
 'use client'
-import React, {FormEvent, Fragment, useContext, useEffect} from 'react';
+import React, {FormEvent, Fragment, useContext, useEffect, useState} from 'react';
 import { useSocket } from '@/app/providers/socketProvider';
 import {MessageInterface} from "@/pages/api/socket/io";
 import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
@@ -11,12 +11,18 @@ import {observer} from "mobx-react-lite";
 function Chat() {
     const socket = useSocket();
     const chatContext = useContext(ChatContext) as ChatContextObject;
+    const [messageText, changeMessageText] = useState('');
+    const [typing, setTyping] = useState(false)
+
+    useEffect(() => {
+        changeMessageText('');
+        setTyping(false)
+    }, [chatContext.currentChat])
 
     useEffect(() => {
         if (socket.socket && socket.socket.connected) {
             return autorun(() => {
                 if (chatContext.isTabSwitched) {
-                    console.log('get-history');
                     chatContext.setIsTabSwitched(false)
                     socket.socket.emit('get-history', chatContext.currentChat?.id);
                 }
@@ -24,14 +30,23 @@ function Chat() {
         }
     }, [socket.socket]);
 
-    const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
         if (socket.socket && socket.socket.connected && chatContext.currentChat) {
-            if (evt.target.value.length < 1) {
-                console.log('stopped typing')
-                socket.socket.volatile.emit('stop-typing', chatContext.currentChat.id);
-            } else {
-                console.log('typing')
+            if (typing) {
                 socket.socket.volatile.emit('typing', chatContext.currentChat.id);
+            } else {
+                socket.socket.volatile.emit('stop-typing', chatContext.currentChat.id);
+            }
+        }
+    }, [typing])
+
+    const inputHandler = (evt : React.ChangeEvent<HTMLInputElement>) => {
+        changeMessageText(evt.target.value)
+        if (socket.socket && socket.socket.connected && chatContext.currentChat) {
+            if (evt.target.value.length < 1 && typing) {
+                setTyping(false)
+            } else if (evt.target.value.length > 0 && !typing) {
+                setTyping(true)
             }
         }
     }
@@ -48,6 +63,10 @@ function Chat() {
         }
     }
 
+    const backButtonHandler = () => {
+        chatContext.setCurrentChat(null)
+    }
+
     const submitHandler = (evt:FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
         if (socket.socket && socket.socket.connected && chatContext.currentChat) {
@@ -55,14 +74,14 @@ function Chat() {
             if (form) {
                 const formData = new FormData(form as HTMLFormElement);
                 const messageText = formData.get('chat-message');
-                console.log(messageText);
                 if (typeof messageText == "string" && messageText.length > 0) {
                     const message:MessageInterface = {
                         chatId: chatContext.currentChat.id,
                         message: messageText
                     }
-                    console.log('message:', message)
                     socket.socket.emit('chat-message', message);
+                    changeMessageText('');
+                    setTyping(false);
                 }
             }
         }
@@ -70,6 +89,9 @@ function Chat() {
 
     return (
         <div>
+            <div>
+                <button type='button' onClick={backButtonHandler}>К списку</button>
+            </div>
             <div>
                 <p>История сообщений:</p>
                 <div>
@@ -89,6 +111,7 @@ function Chat() {
                 <input
                     placeholder="Type something"
                     name={'chat-message'}
+                    value={messageText}
                     onChange={(evt) => inputHandler(evt)}
                     onBlur={(evt) => blurHandler(evt)}
                 />

@@ -1,39 +1,26 @@
 import React from 'react';
 import StyledContainer from "@/app/utils/container";
-import FriendRequestForm from '@/app/ui/friendRequest/friendRequest';
-import {auth} from "@/auth";
-import FriendList from "@/app/ui/friendList/friendList";
-import IncomingInviteList from '@/app/ui/incomingInviteList/incomingInviteList';
-import OutgoingInviteList from '@/app/ui/outgoingInviteList/outgoingInviteList';
-import AddBotList from "@/app/ui/addBotList/addBotList";
-import ChangeNameForm from "@/app/ui/changeNameForm/changeNameForm";
+import { Bot, Friend, Invite } from '@/app/lib/types';
+import StructureController from './structureController';
+import { User } from 'next-auth';
+import { getManagingSession } from '@/app/lib/actions';
+
+export interface ManagingSession {
+    user: User;
+    outgoingInviteList: Invite[];
+    incomingInviteList: Invite[];
+    unfriendedBotsList: Bot[];
+    friendList: Friend[] | null;
+}
 
 export default async function ManagePage() {
-    const authenticatedUser = await auth();
+    const managingSession = await getManagingSession();
   return (
     <StyledContainer>
-        <div>
-            <p>Мой ID: <span>{authenticatedUser?.user?.id}</span></p>
-            <div>
-                <ChangeNameForm/>
-            </div>
-            <div>
-                <FriendList/>
-            </div>
-            <div>
-                <h2>Добавить друга</h2>
-                <FriendRequestForm/>
-            </div>
-            <div>
-                <AddBotList/>
-            </div>
-            <div>
-                <IncomingInviteList/>
-            </div>
-            <div>
-                <OutgoingInviteList/>
-            </div>
-        </div>
+        {managingSession?
+        <StructureController managingSession={managingSession}></StructureController>:
+        'Произошла ошибка аутентификации'
+    }   
     </StyledContainer>
   );
 }

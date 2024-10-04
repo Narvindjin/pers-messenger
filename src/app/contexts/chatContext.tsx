@@ -1,6 +1,7 @@
+'use client'
 import {createContext} from "react";
 import React from "react";
-import {Chat, MessageHistoryResponse, TypingInterface} from "@/app/lib/types";
+import {Chat, Invite, MessageHistoryResponse, TypingInterface} from "@/app/lib/types";
 import {Message} from "@/app/lib/types";
 import {makeAutoObservable} from "mobx";
 
@@ -9,14 +10,16 @@ export class ChatContextObject {
     chatList: Chat[];
     isTabSwitched: boolean;
     unreadChats: number;
-    inviteIdArray: string[];
+    incomingInviteArray: Invite[];
+    outgoingInviteArray: Invite[];
 
     constructor() {
         this.chatList = [];
         this.currentChat = null;
         this.isTabSwitched = false;
         this.unreadChats = 0;
-        this.inviteIdArray = []
+        this.incomingInviteArray = [];
+        this.outgoingInviteArray = [];
         makeAutoObservable(this)
     }
 
@@ -24,35 +27,68 @@ export class ChatContextObject {
         this.isTabSwitched = state;
     }
 
+    setIncomingInviteArray(inviteArray: Invite[]) {
+        this.incomingInviteArray = inviteArray;
+    }
+
+    setOutgoingInviteArray(inviteArray: Invite[]) {
+        this.outgoingInviteArray = inviteArray;
+    }
+
     updateChatList(newChatList: Chat[]) {
         this.chatList = newChatList;
         this.unreadChats = this.chatList.filter((chat) => {
-            return chat.unread > 0
+            return chat.unread && chat.unread > 0
         }).length
     }
 
-    setCurrentChat(chat: Chat) {
+    setCurrentChat(chat: Chat | null) {
         this.currentChat = chat;
-        this.setIsTabSwitched(true)
+        this.isTabSwitched = true;
     }
 
-    addMessage(message: Message, self?: boolean) {
-        const chat = this.chatList.find((chat) => chat.id === message.chatId)
+    clearSelfUnread(chatId: string, selfId: string) {
+        const chat = this.chatList.find((chat) => chat.id === chatId)
         if (chat) {
-            chat.messages.push(message);
-            chat.lastMessage = message;
-            if (chat !== this.currentChat && !self) {
-                chat.lastMessage.unread = true;
-                if (chat.unread === 0) {
-                    this.unreadChats++
+            for (const message of chat.messages) {
+                if (message.unread !== false && message.fromId === selfId) {
+                    message.unread = false;
                 }
-                chat.unread++
             }
         }
     }
 
+    addMessage(message: Message, self: boolean) {
+        const chat = this.chatList.find((chat) => chat.id === message.chatId)
+        if (chat) {
+            if (chat !== this.currentChat && !self) {
+                if (chat.unread === 0) {
+                    this.unreadChats++
+                }
+                chat.unread!++
+                message.unread = true;
+            } else if (self) {
+                setTimeout(() => {
+                    const addedMessage = chat.messages.find(mes => mes.id === message.id)
+                    if (addedMessage && addedMessage.unread !== false) {
+                        addedMessage.unread = true;
+                    }
+                }, 330)
+            }
+            chat.messages = [...chat.messages, message];
+            chat.lastMessage = message;
+            chat.lastMessage.unread = true
+            console.log(chat)
+            if (chat !== this.currentChat && !self) { 
+                return false
+            }
+            return true
+        }
+        return false
+    }
+
     checkAndChangeWritingArray(typingObject: TypingInterface, add: boolean) {
-        let chat: Chat | null;
+        let chat: Chat | null | undefined;
         if (this.currentChat?.id === typingObject.chatId) {
             chat = this.currentChat;
         } else {
@@ -84,23 +120,26 @@ export class ChatContextObject {
     }
 
     handleNewMessageHistory(messageHistory: MessageHistoryResponse) {
-        let unreadMessagesMap = new Map;
+        const unreadMessagesMap = new Map;
+        console.log(messageHistory)
         if (messageHistory.success && messageHistory.messageHistory) {
-            for (const adapter of messageHistory.messageHistory.adapters) {
+            for (const adapter of messageHistory.messageHistory.membersAdapters) {
                 for (const unreadMessage of adapter.toUnreadMessages) {
                     unreadMessagesMap.set(unreadMessage.id, true)
                 }
             }
             unreadMessagesMap.forEach((value, key) => {
-                for (const message of messageHistory.messageHistory?.messages) {
-                    if (message.id === key) {
-                        message.unread = true;
+                if (messageHistory.messageHistory?.messages) {
+                    for (const message of messageHistory.messageHistory?.messages) {
+                        if (message.id === key) {
+                            message.unread = true;
+                        }
                     }
                 }
             })
             if (this.currentChat && this.currentChat.id === messageHistory.messageHistory.chatId) {
                 this.currentChat.messages = messageHistory.messageHistory.messages;
-                if (this.currentChat.unread > 0 && this.unreadChats > 0) {
+                if (this.currentChat.unread && this.currentChat.unread > 0 && this.unreadChats > 0) {
                     this.unreadChats--
                 }
                 this.currentChat.unread = 0;
