@@ -4,6 +4,7 @@ import { getChatList } from '@/app/lib/actions/message';
 import { getIncomingInviteList, getOutgoingInviteList } from '@/app/lib/actions/friendInvites';
 import { Invite } from '@/app/lib/types';
 import DataSetter from './data-setter';
+import { getUser } from '@/app/lib/actions';
 
 export default async function DataGetter({
     children
@@ -12,8 +13,13 @@ export default async function DataGetter({
   }>) {
     const constructDataSetter = async() => {
       const chatArray = await getChatList();
-      const outgoingInviteArray:Invite[] = await getOutgoingInviteList();
-      const incomingInviteArray:Invite[] = await getIncomingInviteList();
+      const user = await getUser()
+      let outgoingInviteArray:Invite[] = [];
+      let incomingInviteArray:Invite[] = [];
+      if (user) {
+        outgoingInviteArray = await getOutgoingInviteList(user);
+        incomingInviteArray = await getIncomingInviteList(user);
+      }
       const serverData = {
           chatArray: chatArray,
           outgoingInviteArray: outgoingInviteArray,

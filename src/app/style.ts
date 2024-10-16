@@ -5,6 +5,7 @@ const StyledWrapper = styled.div`
     position: relative;
   display: flex;
   flex-direction: column;
+  padding-bottom: 50px;
 
   header,
   footer {

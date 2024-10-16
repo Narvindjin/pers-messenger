@@ -7,6 +7,9 @@ import React from 'react'
 import { uploadAvatarHandler } from '@/app/lib/actions';
 import { useSession } from 'next-auth/react';
 import { UserContext } from '@/app/contexts/userContext';
+import { CustomButton } from '../components/button/button';
+import { AvatarInput } from './style';
+import { CustomLabel } from '../components/label/label';
 
 function ChangeNameForm() {
     const [error, formAction] = useFormState(uploadAvatarHandler, null);
@@ -28,9 +31,9 @@ function ChangeNameForm() {
         <form action={formAction as unknown as string}>
             <div>
                 <div>
-                    <label htmlFor={'profilePicture'}>Загрузите свой аватар:</label>
+                    <CustomLabel htmlFor={'profilePicture'}>Загрузите свой аватар:</CustomLabel>
                 </div>
-                <input name={'profilePicture'} id={'profilePicture'} accept="image/png, image/jpeg, image/jpg" required type={"file"} />
+                <AvatarInput name={'profilePicture'} id={'profilePicture'} accept="image/png, image/jpeg, image/jpg" required type={"file"} />
                 <ChangeAvatarButton/>
                 <div>
                     {!error?.success && error?.errorMessage && (
@@ -46,9 +49,9 @@ function ChangeAvatarButton() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
+        <CustomButton type={"submit"} aria-disabled={pending}>
             Сменить аватар
-        </button>
+        </CustomButton>
     );
 }
 

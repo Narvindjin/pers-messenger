@@ -1,15 +1,11 @@
-'use client'
 import React from 'react';
-import StyledContainer from "@/app/utils/container";
-import {observer} from "mobx-react-lite";
+import ChatPage from './chat/page';
 
 
-function Profile() {
+async function Profile() {
   return (
-    <StyledContainer>
-      testingProfilePage
-    </StyledContainer>
+    <ChatPage></ChatPage>
   );
 }
 
-export default observer(Profile)
+export default Profile

@@ -49,12 +49,12 @@ function ManagingMenu(
                 case null: return <ButtonList/>
                 case 'user': return <UserSection user={managingSession.user}/>
                 case 'friend': return <FriendSection friendArray={managingSession.friendList} botArray={managingSession.unfriendedBotsList}/>
-                case 'invite' : return <InviteSection incomingInviteList={managingSession.incomingInviteList} outgoingInviteList={managingSession.outgoingInviteList}/>
+                case 'invite' : return <InviteSection/>
                 default: return <ButtonList/>
             }
         }
         return (
-            <div/>
+            <ReturnSection></ReturnSection>
         )
 }
 

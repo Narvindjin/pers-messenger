@@ -5,6 +5,9 @@ import {friendInviteHandler} from "@/app/lib/actions/friendInvites";
 import React, { useContext } from 'react'
 import { useSocket } from '@/app/providers/socketProvider';
 import { ChatContext } from '@/app/contexts/chatContext';
+import { CustomInput } from '../components/input/input';
+import { FriendButton } from './style';
+import { CustomLabel } from '../components/label/label';
 
 export default function FriendRequestForm() {
     const [result, formAction] = useFormState(friendInviteHandler, null);
@@ -25,11 +28,11 @@ export default function FriendRequestForm() {
             <div>
                 <div>
                     <div>
-                        <label htmlFor="friendRequestId">
-                            ID пользователя, которого хотите добавить в друзья
-                        </label>
+                        <CustomLabel htmlFor="friendRequestId">
+                            ID пользователя, которого хотите добавить в друзья:
+                        </CustomLabel>
                         <div>
-                            <input
+                            <CustomInput
                                 id="friendRequestId"
                                 type="text"
                                 name="friendRequestId"
@@ -54,8 +57,8 @@ function LoginButton() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
-            Кинуть инвайт
-        </button>
+        <FriendButton type={"submit"} aria-disabled={pending}>
+            Отправить инвайт
+        </FriendButton>
     );
 }

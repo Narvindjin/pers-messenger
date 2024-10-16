@@ -5,6 +5,7 @@ import {StyledWrapper} from "@/app/style";
 import Header from "@/app/blocks/header/header";
 import UserWrapper from "./blocks/userWrapper/userWrapper";
 import SessionWrapper from "./blocks/userWrapper/sessionWrapper";
+import ThemeContainer from "./providers/themeProvider";
 
 export const metadata: Metadata = {
   title: "Personal Next App",
@@ -19,6 +20,7 @@ export default function RootLayout({
 }>) {
   return (
           <html lang="en">
+            <ThemeContainer>
               <StyledComponentsRegistry>
                     <body id={'root'}>
                         {auth}
@@ -34,6 +36,7 @@ export default function RootLayout({
                         </StyledWrapper>
                     </body>
               </StyledComponentsRegistry>
+              </ThemeContainer>
           </html>
   );
 }

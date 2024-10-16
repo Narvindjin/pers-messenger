@@ -1,30 +1,24 @@
 'use client'
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import InviteAcceptForm from "./inviteForm";
 import { ChatContext, ChatContextObject } from "@/app/contexts/chatContext";
 import { observer } from "mobx-react-lite";
-import { Invite } from "@/app/lib/types";
+import { InviteList } from "./style";
 
-function IncomingInviteList({inviteList}: {
-    inviteList: Invite[]
-}) {
+function IncomingInviteList() {
     const chatContext = useContext(ChatContext) as ChatContextObject;
-    useEffect(() => {
-        chatContext.setIncomingInviteArray(inviteList)
-    }, [inviteList])
-    const inviteArray = chatContext.incomingInviteArray;
     return (
         <>
             <h2>Входящие приглашения:</h2>
-            <ul>
-                {inviteArray.map((invite) => {
+            <InviteList>
+                {chatContext.incomingInviteArray.map((invite) => {
                     return (
                         <li key={invite.id}>
                             <InviteAcceptForm invite={invite} />
                         </li>
                     )
                 })}
-            </ul>
+            </InviteList>
         </>
     )
 }

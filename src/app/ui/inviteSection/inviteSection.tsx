@@ -1,29 +1,26 @@
 'use client'
 import React from "react";
 import {observer} from "mobx-react-lite";
-import { Invite } from "@/app/lib/types";
 import IncomingInviteList from "../incomingInviteList/incomingInviteList";
 import OutgoingInviteList from "../outgoingInviteList/outgoingInviteList";
 import FriendRequestForm from "../friendRequest/friendRequest";
+import { ManagingColumn } from "../components/managingColumn/managingColumn";
 
 
-function InviteSection({incomingInviteList, outgoingInviteList}:Readonly<{
-    incomingInviteList: Invite[];
-    outgoingInviteList: Invite[];
-  }>) {
+function InviteSection() {
         return (
-            <>
+            <ManagingColumn>
                 <div>
-                    <h2>Добавить друга</h2>
+                    <h1>Добавить друга</h1>
                     <FriendRequestForm/>
                 </div>
                 <div>
-                    <IncomingInviteList inviteList={incomingInviteList}/>
+                    <IncomingInviteList/>
                 </div>
                 <div>
-                    <OutgoingInviteList inviteList={outgoingInviteList}/>
+                    <OutgoingInviteList/>
                 </div>
-            </>
+            </ManagingColumn>
         )
 }
 

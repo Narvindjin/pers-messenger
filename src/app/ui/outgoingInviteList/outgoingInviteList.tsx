@@ -1,17 +1,11 @@
 'use client'
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { ChatContext, ChatContextObject } from "@/app/contexts/chatContext";
 import InviteDeleteForm from "./inviteForm";
 import { observer } from "mobx-react-lite";
-import { Invite } from "@/app/lib/types";
 
-function OutgoingInviteList({inviteList}: {
-    inviteList: Invite[]
-}) {
+function OutgoingInviteList() {
     const chatContext = useContext(ChatContext) as ChatContextObject;
-    useEffect(() => {
-        chatContext.setOutgoingInviteArray(inviteList)
-    }, [inviteList])
     const inviteArray = chatContext.outgoingInviteArray;
     return (
         <>

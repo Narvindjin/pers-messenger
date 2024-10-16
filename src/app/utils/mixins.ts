@@ -1,5 +1,9 @@
-import {css} from 'styled-components'
+import styled, {css} from 'styled-components'
 import { TRANS_TIME } from '../global/theme'
+
+export const HiddenInput = styled.input`
+    display: none;
+`
 
 const shadowStandardValue = '0 0 5px 2px rgba(0, 0, 0, 0.08)' 
 

@@ -7,6 +7,9 @@ import {UserContext} from "@/app/contexts/userContext";
 import {observer} from "mobx-react-lite";
 import React from 'react'
 import { useSession } from "next-auth/react"
+import { TextBlock } from '../components/textBlock/textBlock';
+import { CustomChangeNameButton, CustomLabel } from './style';
+import { CustomInput } from '../components/input/input';
 
 function ChangeNameForm() {
     const { update } = useSession()
@@ -15,7 +18,6 @@ function ChangeNameForm() {
 
     useEffect(() => {
         if (error?.refresh && error.success) {
-            console.log('change name')
             const refreshAndUpdate = async () => {
                 error.refresh = false;
                 await update(userContext.user?.id);
@@ -28,10 +30,11 @@ function ChangeNameForm() {
     return (
         <form action={formAction as unknown as string}>
             <div>
+                <TextBlock>Ваш текущий никнейм: <b>{userContext.user?.name}</b></TextBlock>
                 <div>
-                    <label htmlFor={'name'}>Введите новый никнейм:</label>
+                    <CustomLabel htmlFor={'name'}>Введите новый никнейм:</CustomLabel>
                 </div>
-                <input name={'name'} id={'name'} placeholder={userContext.user?.name? userContext.user?.name: undefined} required type={"text"}/>
+                <CustomInput name={'name'} id={'name'} placeholder={userContext.user?.name? userContext.user?.name: undefined} required type={"text"}/>
                 <ChangeNameButton/>
                 <div>
                     {!error?.success && error?.errorMessage && (
@@ -47,9 +50,9 @@ function ChangeNameButton() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
+        <CustomChangeNameButton type={"submit"} aria-disabled={pending}>
             Сменить никнейм
-        </button>
+        </CustomChangeNameButton>
     );
 }
 

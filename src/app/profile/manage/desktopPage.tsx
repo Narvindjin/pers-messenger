@@ -5,6 +5,7 @@ import UserSection from '@/app/ui/userSection/userSection';
 import FriendSection from '@/app/ui/friendSection/friendSection';
 import InviteSection from '@/app/ui/inviteSection/inviteSection';
 import { ManagingSession } from './page';
+import { Column, ColumnContainer } from './style';
 
 
 function DesktopManagingPage(
@@ -14,11 +15,15 @@ function DesktopManagingPage(
         managingSession: ManagingSession
     }>) {
         return (
-            <>
-                <UserSection user={managingSession.user}/>
-                <FriendSection friendArray={managingSession.friendList} botArray={managingSession.unfriendedBotsList}/>
-                <InviteSection incomingInviteList={managingSession.incomingInviteList} outgoingInviteList={managingSession.outgoingInviteList}/>
-            </>
+            <ColumnContainer>
+                <Column>
+                    <UserSection user={managingSession.user}/>
+                    <InviteSection/>
+                </Column>
+                <Column>
+                    <FriendSection friendArray={managingSession.friendList} botArray={managingSession.unfriendedBotsList}/>
+                </Column>
+            </ColumnContainer>
         )
 }
 

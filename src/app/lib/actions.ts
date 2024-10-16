@@ -1,7 +1,7 @@
 'use server'
 import { auth, signIn, signOut } from '@/auth';
 import { redirect } from "next/dist/client/components/redirect";
-import { validateEmail } from '../utils/utils';
+import { validateEmail } from '../utils/utilsServer';
 import { AuthError } from "next-auth"
 import { Invite } from './types';
 import { zfd } from 'zod-form-data';
@@ -15,7 +15,7 @@ import { getIncomingInviteList, getOutgoingInviteList, getUnfriendedBots } from 
 import { getFriendList } from './actions/friendList';
 
 export type SignInEmailResult = {
-    status: "error";
+    status: "error" | "ok";
     errorMessage: string;
 } | undefined;
 
@@ -37,6 +37,7 @@ export async function signInEmail(
     let redirectUrl: string | null = null;
     try {
         const email = formData.get("email");
+        console.log(email)
         if (validateEmail(email)) {
             redirectUrl = await signIn("nodemailer", {
                 redirect: false,
@@ -55,6 +56,7 @@ export async function signInEmail(
             };
         }
     } catch (error) {
+        console.log(error)
         return {
             status: "error",
             errorMessage: "Не удалось авторизироваться с помощью почты",
@@ -94,8 +96,8 @@ export async function getManagingSession(): Promise<ManagingSession | null> {
         const friendList = await getFriendList(user);
         const unfriendedBotsList = await getUnfriendedBots(user);
         const managingSession:ManagingSession = {
-            incomingInviteList: incomingInviteList,
-            outgoingInviteList: outgoingInviteList,
+            incomingInviteArray: incomingInviteList,
+            outgoingInviteArray: outgoingInviteList,
             friendList: friendList,
             unfriendedBotsList: unfriendedBotsList,
             user: user
@@ -109,7 +111,8 @@ export async function getManagingSession(): Promise<ManagingSession | null> {
 export async function signOutHandler(): Promise<SignInEmailResult> {
     let url: string | null = null;
     try {
-        url = await signOut({ redirect: false, redirectTo: "/" });
+        const urlObject = await signOut({ redirect: false, redirectTo: "/" });
+        url = urlObject.redirect
     } catch (error) {
         console.log(error)
         return {
@@ -120,7 +123,7 @@ export async function signOutHandler(): Promise<SignInEmailResult> {
     if (url) {
         return {
                 status: "ok",
-                errorMessage: url.redirect
+                errorMessage: url
             }
         }
 }

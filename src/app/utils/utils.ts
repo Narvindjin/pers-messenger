@@ -1,17 +1,6 @@
 'use client'
-import { throttle } from 'throttle-debounce';
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-export const validateEmail = (email:FormDataEntryValue | null) => {
-    if (typeof email === 'string' || email instanceof String) {
-        return String(email)
-        .toLowerCase()
-        .match(
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
-    }
-    return null
-  };
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
   interface Window {
     width: undefined | number;
@@ -25,17 +14,28 @@ export const validateEmail = (email:FormDataEntryValue | null) => {
 
   export function useWindowSize() {
     const [windowSize, setWindowSize]: [Window, Dispatch<SetStateAction<Window>>] = useState(initState);
-  
     useEffect(() => {
+      let throttle = false;
+      let timeoutId: NodeJS.Timeout
       function handleResize() {
-        throttle(250, () => {
+        if (!throttle) {
+          throttle = true;
           setWindowSize({
             width: window.innerWidth,
             height: window.innerHeight,
           });
-        })
+          setTimeout(() => {
+            throttle = false
+          }, 250)
+          window.clearTimeout(timeoutId)
+          timeoutId = setTimeout(() => {
+              setWindowSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+              });
+          }, 400)
+        }
       }
-      
       window.addEventListener("resize", handleResize);
        
       setWindowSize({

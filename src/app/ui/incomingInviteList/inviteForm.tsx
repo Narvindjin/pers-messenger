@@ -7,6 +7,7 @@ import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
 import { observer } from "mobx-react-lite";
 import { useSocket } from '@/app/providers/socketProvider';
+import { HiddenInput } from '@/app/utils/mixins';
 
 function InviteAcceptForm({ invite }: Readonly<{
     invite: Invite
@@ -54,7 +55,7 @@ function InviteAcceptForm({ invite }: Readonly<{
     return (
         <form ref={formRef} action={formAction as unknown as string} onSubmit={submitHandler}>
             <div>
-                <input type='text' name='inviteId' readOnly value={invite.id} />
+                <HiddenInput type='text' name='inviteId' readOnly value={invite.id} />
                 <p>Инвайт от {invite.from!.name}</p>
                 <input type='hidden' name='rejected' value={rejectBool + ''} readOnly />
                 <div>
