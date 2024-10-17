@@ -10,6 +10,7 @@ interface ThemeTemplate {
     colorInput:string;
     theme:ThemeType;
     desktopMargin:string;
+    colorButton:string;
 }
 
 class theme implements ThemeTemplate {
@@ -22,7 +23,8 @@ class theme implements ThemeTemplate {
     colorInput;
     theme;
     desktopMargin;
-    constructor(textColor: string, backgroundColor: string, elementColor: string, inputColor: string, theme: ThemeType) {
+    colorButton;
+    constructor(textColor: string, backgroundColor: string, elementColor: string, inputColor: string, colorButton: string, theme: ThemeType) {
         this.colorText = textColor;
         this.colorBackground = backgroundColor;
         this.colorElement = elementColor;
@@ -32,6 +34,7 @@ class theme implements ThemeTemplate {
         this.colorWhite = "hsl(0, 0%, 100%)";
         this.theme = theme;
         this.desktopMargin = '60px';
+        this.colorButton = colorButton;
     }
 }
 
@@ -40,6 +43,7 @@ const lightTheme = new theme(
     "hsl(0, 0%, 98%)",
     "hsl(0, 0%, 100%)",
     "hsl(0, 0%, 52%)",
+    "rgba(111, 143, 175, 0.8)",
     'light',
 )
 
@@ -48,6 +52,7 @@ const darkTheme = new theme(
     "hsl(207, 26%, 17%)",
     "hsl(209, 23%, 22%)",
     "hsl(0, 0%, 80%)",
+    "hsl(210, 29%, 56%)",
     'dark',
 )
 

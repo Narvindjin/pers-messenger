@@ -6,7 +6,7 @@ export default function VerifyRequest() {
   return (
       <StyledContainer>
           <div>
-            проверьте указанную почту хд
+            <p>Проверьте указанную почту и перейдите по вложенной в письме ссылке для входа в аккаунт.</p>
           </div>
       </StyledContainer>
   );

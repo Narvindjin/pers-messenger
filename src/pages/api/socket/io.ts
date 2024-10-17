@@ -119,7 +119,9 @@ const socketHandler = async (req: NextApiRequest, res: NextApiResponseServerSock
             })
             initedSocket.on('delete-invite', async (inviteId: string, fromSender: boolean) => {
                 if (inviteId && await stringChecker(inviteId)) {
+                    console.log('checker-step')
                     const deletedInvite = await deleteInvite(inviteId, userId, fromSender);
+                    console.log('invite-step', deletedInvite)
                     if (deletedInvite.success) {
                         socket.to(deletedInvite.invite!.to!.id).emit('client-deleted-incoming-invite', deletedInvite.invite)
                         socket.to(deletedInvite.invite!.from!.id).emit('client-deleted-outgoing-invite', deletedInvite.invite)

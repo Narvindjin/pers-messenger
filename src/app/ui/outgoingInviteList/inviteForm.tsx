@@ -19,8 +19,8 @@ export default function InviteDeleteForm({invite}: Readonly<{
     }
 
     const submitHandler = (evt:FormEvent<HTMLFormElement>) => {
-        evt.preventDefault();
         if (socket.socket && socket.socket.connected) {
+            evt.preventDefault();
             socket.socket.emit('delete-invite', invite.id, true)
         }
     }

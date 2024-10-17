@@ -7,10 +7,7 @@ const mutex = new Mutex();
 const characterAI = new CharacterAI();
 
 (async () => {
-  console.log('authenticate char_ai')
   const authenticated = await characterAI.authenticateWithToken("76108fb191ffd6561a9c737661f70c09b38d4dac");
-  console.log('authenticated', authenticated)
-  console.log('char_ai', characterAI)
 })();
 
 export async function sendCharacterMessage(bot: Bot, message: string, user: User) {

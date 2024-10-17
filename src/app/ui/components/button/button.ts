@@ -17,4 +17,35 @@ const CustomButton = styled.button`
     ${fontLight};
 `
 
-export {CustomButton}
+const IconButton = styled.button`
+    display: flex;
+    width: 25px;
+    height: 25px;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    padding: 0 3px;
+    background-color: transparent;
+
+    &:first-of-type {
+        padding-left: 0;
+    }
+
+    &:last-of-type {
+        padding-right: 0;
+    }
+
+    & + button {
+        border-left: 1px solid ${(props) => props.theme.colorText};
+        width: 26px;
+    }
+
+    & > svg {
+        display: flex;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1/1;
+    }
+`
+
+export {CustomButton, IconButton}

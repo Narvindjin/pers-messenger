@@ -142,6 +142,7 @@ export async function normalizeString(string: string) {
 }
 
 export async function stringChecker(probablyString: any): Promise<boolean> {
+    console.log(probablyString)
     if (typeof (probablyString) === 'string') {
         return true
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, {MutableRefObject, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import React, { MutableRefObject, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { addToFriendListHandler } from "@/app/lib/actions/friendList";
 import { Invite } from '@/app/lib/types';
@@ -8,13 +8,19 @@ import { useRouter } from 'next/navigation';
 import { observer } from "mobx-react-lite";
 import { useSocket } from '@/app/providers/socketProvider';
 import { HiddenInput } from '@/app/utils/mixins';
+import { InviteButtonContainer, InviteContainer, InviteName, InviteNameContainer } from './style';
+import { IconButton } from '../components/button/button';
+import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function InviteAcceptForm({ invite }: Readonly<{
     invite: Invite
 }>) {
     const socket = useSocket();
     const [error, formAction] = useFormState(addToFriendListHandler, null);
-    const [rejectBool, changeRejectBool] = useState<null | boolean>(null)
+    const [rejectBool, changeRejectBool] = useState<null | boolean>(null);
+    const [socketWorking, changeSocketWorking] = useState<boolean>(true)
     const { pending } = useFormStatus();
     const formRef: MutableRefObject<null | HTMLFormElement> = useRef(null)
     const router = useRouter();
@@ -25,28 +31,31 @@ function InviteAcceptForm({ invite }: Readonly<{
 
     useEffect(() => {
         if (rejectBool !== null && formRef.current) {
-            (formRef.current).submit();
+            changeSocketWorking(false);
+            (formRef.current).requestSubmit();
         }
     }, [rejectBool])
 
     const submitHandler = (evt: SyntheticEvent) => {
-        evt.preventDefault();
-        const eventSubmitter = (evt.nativeEvent as SubmitEvent).submitter as HTMLButtonElement
-        let accept = false;
-        if (eventSubmitter && eventSubmitter.name === "accept") {
-            accept = true
-        }
-        if (socket.socket && socket.socket.connected) {
-            if (accept) {
-                socket.socket.emit('accept-invite', invite.id)
-            } else {
-                socket.socket.emit('delete-invite', invite.id, false)
+        if (socketWorking) {
+            evt.preventDefault();
+            const eventSubmitter = (evt.nativeEvent as SubmitEvent).submitter as HTMLButtonElement
+            let accept = false;
+            if (eventSubmitter && eventSubmitter.name === "accept") {
+                accept = true
             }
-        } else {
-            if (accept) {
-                changeRejectBool(false);
+            if (socket.socket && socket.socket.connected) {
+                if (accept) {
+                    socket.socket.emit('accept-invite', invite.id)
+                } else {
+                    socket.socket.emit('delete-invite', invite.id, false)
+                }
             } else {
-                changeRejectBool(true)
+                if (accept) {
+                    changeRejectBool(false);
+                } else {
+                    changeRejectBool(true)
+                }
             }
         }
     }
@@ -54,23 +63,27 @@ function InviteAcceptForm({ invite }: Readonly<{
 
     return (
         <form ref={formRef} action={formAction as unknown as string} onSubmit={submitHandler}>
-            <div>
+            <InviteContainer>
                 <HiddenInput type='text' name='inviteId' readOnly value={invite.id} />
-                <p>Инвайт от {invite.from!.name}</p>
+                <InviteNameContainer>
+                    <InviteName>{invite.from!.name}</InviteName>
+                </InviteNameContainer>
                 <input type='hidden' name='rejected' value={rejectBool + ''} readOnly />
-                <div>
-                {invite.accepted? <p>Инвайт принят</p>:
-                    <>
-                        <button type={"submit"} name='accept' value={'true'} aria-disabled={pending}>
-                            Принять инвайт
-                        </button>
-                        <button type={"submit"} name='reject' value={'true'} aria-disabled={pending}>
-                            Отклонить инвайт
-                        </button>
-                    </>
-                }
-                </div>
-            </div>
+                <InviteButtonContainer>
+                    {invite.accepted ? <p>Инвайт принят</p> :
+                        <>
+                            <IconButton type={"submit"} name='accept' value={'true'} aria-disabled={pending}>
+                                <FontAwesomeIcon icon={faCheck} />
+                                <HiddenSpan>Принять инвайт</HiddenSpan>
+                            </IconButton>
+                            <IconButton type={"submit"} name='reject' value={'true'} aria-disabled={pending}>
+                                <FontAwesomeIcon icon={faXmark} />
+                                <HiddenSpan>Отклонить инвайт</HiddenSpan>
+                            </IconButton>
+                        </>
+                    }
+                </InviteButtonContainer>
+            </InviteContainer>
             <div>
                 {!error?.success && error?.errorMessage && (
                     <p>{error.errorMessage}</p>
