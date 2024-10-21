@@ -5,6 +5,7 @@ import {useRouter} from 'next/navigation';
 import {Bot} from "@/app/lib/types";
 import {addBotFriendHandler} from "@/app/lib/actions/friendList";
 import {observer} from "mobx-react-lite";
+import { ErrorText } from '../incomingInviteList/style';
 
 interface BotProps {
     bot: Bot
@@ -26,11 +27,9 @@ function AddBotForm({bot}: BotProps) {
                 </div>
                 <input name={'botId'} value={bot.id} required type={"hidden"}/>
                 <BefriendButton/>
-                <div>
                     {!error?.success && error?.errorMessage && (
-                        <p>{error.errorMessage}</p>
+                        <ErrorText>{error.errorMessage}</ErrorText>
                     )}
-                </div>
             </div>
         </form>
     );

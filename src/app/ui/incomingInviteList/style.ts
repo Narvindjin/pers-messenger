@@ -1,5 +1,5 @@
-import { fontBold } from "@/app/utils/mixins";
 import styled from "styled-components";
+import { IconButton } from "../components/button/button";
 
 export const InviteList = styled.ul`
     display: flex;
@@ -19,7 +19,7 @@ export const InviteContainer = styled.div`
     border-radius: 5px;
     box-shadow: ${(props) => props.theme.colorButton} 0 0 2px 1px;
     min-height: 50px;
-    padding: 5px 10px;
+    padding: 8px 12px;
     justify-content: space-between;
     align-items: center;
 `
@@ -48,4 +48,16 @@ export const InviteButtonContainer = styled.div`
     align-items: center;
     min-width: 0;
     flex-shrink: 0;
+`
+
+export const AcceptButton = styled(IconButton)`
+    color: ${(props) => props.theme.colorAccept};
+`
+
+export const DeclineButton = styled(IconButton)`
+    color: ${(props) => props.theme.colorDecline};
+`
+
+export const ErrorText = styled.p`
+    color: ${(props) => props.theme.colorDecline};
 `

@@ -10,6 +10,7 @@ import { UserContext } from '@/app/contexts/userContext';
 import { CustomButton } from '../components/button/button';
 import { AvatarInput } from './style';
 import { CustomLabel } from '../components/label/label';
+import { ErrorText } from '../incomingInviteList/style';
 
 function ChangeNameForm() {
     const [error, formAction] = useFormState(uploadAvatarHandler, null);
@@ -35,11 +36,9 @@ function ChangeNameForm() {
                 </div>
                 <AvatarInput name={'profilePicture'} id={'profilePicture'} accept="image/png, image/jpeg, image/jpg" required type={"file"} />
                 <ChangeAvatarButton/>
-                <div>
                     {!error?.success && error?.errorMessage && (
-                        <p>{error.errorMessage}</p>
+                        <ErrorText>{error.errorMessage}</ErrorText>
                     )}
-                </div>
             </div>
         </form>
     );

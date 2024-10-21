@@ -16,6 +16,7 @@ export interface Friend {
     id: string,
     name: string
     bot?: boolean,
+    image?: string,
 }
 
 export interface Invite {

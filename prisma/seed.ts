@@ -21,16 +21,16 @@ interface Bot {
 
 export const botArray: Bot[] = [
     {
-        name: 'sanic',
+        name: 'Саник',
         botId: 'OkQhIQ0WNko1Wx-phdqhUFI0vV3NLIpC8L6Ryyz2-Xo',
-        imageUrl: '/',
-        botPurpose: '',
+        imageUrl: '',
+        botPurpose: '/uploads/default/sanic.png',
         botDescription: 'Бот Саника'
     },
     {
         name: 'Автопосылатель сообщений',
         botId: null,
-        imageUrl: '/',
+        imageUrl: '',
         botPurpose: 'autosend',
         botDescription: 'Автопосылка сообщений, отправить start для начала, end для окончания'
     }

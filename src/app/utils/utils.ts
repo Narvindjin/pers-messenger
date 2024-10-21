@@ -12,6 +12,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
     height: undefined
   }
 
+  export const defaultAvatarSrc = "/uploads/default/default_avatar.jpg"
+
   export function useWindowSize() {
     const [windowSize, setWindowSize]: [Window, Dispatch<SetStateAction<Window>>] = useState(initState);
     useEffect(() => {

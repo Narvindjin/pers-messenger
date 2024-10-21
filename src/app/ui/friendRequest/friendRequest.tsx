@@ -8,6 +8,7 @@ import { ChatContext } from '@/app/contexts/chatContext';
 import { CustomInput } from '../components/input/input';
 import { FriendButton } from './style';
 import { CustomLabel } from '../components/label/label';
+import { ErrorText } from '../incomingInviteList/style';
 
 export default function FriendRequestForm() {
     const [result, formAction] = useFormState(friendInviteHandler, null);
@@ -43,11 +44,9 @@ export default function FriendRequestForm() {
                     </div>
                 </div>
                 <LoginButton/>
-                <div>
                 {!result?.success && result?.errorMessage && (
-                    <p>{result.errorMessage}</p>
+                    <ErrorText>{result.errorMessage}</ErrorText>
                 )}
-                </div>
             </div>
         </form>
     );

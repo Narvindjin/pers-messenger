@@ -8,6 +8,8 @@ import ChangeNameForm from "../changeNameForm/changeNameForm";
 import { TextBlock } from "../components/textBlock/textBlock";
 import { ManagingColumn } from "../components/managingColumn/managingColumn";
 import { DivWithMargin } from "./style";
+import IdBlock from "../idBlock/idBlock";
+import { defaultAvatarSrc } from "@/app/utils/utils";
 
 
 function UserSection({user}:Readonly<{
@@ -16,7 +18,7 @@ function UserSection({user}:Readonly<{
         return (
             <ManagingColumn>
                 <h1>Профиль</h1>
-                <TextBlock>Ваш ID: <b>{user.id}</b></TextBlock>
+                <IdBlock user={user}/>
                 <DivWithMargin>
                     <ChangeNameForm/>
                 </DivWithMargin>
@@ -25,7 +27,7 @@ function UserSection({user}:Readonly<{
                         {user.image ?
                         <>
                             <Image src={user.image} width={150} height={150} alt={`Аватарка ${user.name}`}/>
-                        </>: <Image src={"/public/uploads/default_avatar.jpg"} width={150} height={150} alt={`Аватарка ${user.name}`}/>
+                        </>: <Image src={defaultAvatarSrc} width={150} height={150} alt={`Аватарка ${user.name}`}/>
                     }
                 </DivWithMargin>
                 <AvatarUploadForm/>

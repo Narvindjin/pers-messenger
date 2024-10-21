@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react"
 import { TextBlock } from '../components/textBlock/textBlock';
 import { CustomChangeNameButton, CustomLabel } from './style';
 import { CustomInput } from '../components/input/input';
+import { ErrorText } from '../incomingInviteList/style';
 
 function ChangeNameForm() {
     const { update } = useSession()
@@ -36,11 +37,9 @@ function ChangeNameForm() {
                 </div>
                 <CustomInput name={'name'} id={'name'} placeholder={userContext.user?.name? userContext.user?.name: undefined} required type={"text"}/>
                 <ChangeNameButton/>
-                <div>
                     {!error?.success && error?.errorMessage && (
-                        <p>{error.errorMessage}</p>
+                        <ErrorText>{error.errorMessage}</ErrorText>
                     )}
-                </div>
             </div>
         </form>
     );

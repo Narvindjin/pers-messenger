@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import { ChatContext, ChatContextObject } from "@/app/contexts/chatContext";
 import InviteDeleteForm from "./inviteForm";
 import { observer } from "mobx-react-lite";
+import { InviteList } from "../incomingInviteList/style";
 
 function OutgoingInviteList() {
     const chatContext = useContext(ChatContext) as ChatContextObject;
@@ -10,7 +11,7 @@ function OutgoingInviteList() {
     return (
         <>
             <h2>Исходящие приглашения:</h2>
-            <ul>
+            <InviteList>
                 {inviteArray.map((invite) => {
                     return (
                         <li key={invite.id}>
@@ -18,7 +19,7 @@ function OutgoingInviteList() {
                         </li>
                     )
                 })}
-            </ul>
+            </InviteList>
         </>
     )
 }

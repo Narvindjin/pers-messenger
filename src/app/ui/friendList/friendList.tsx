@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import RemoveFriendForm from "./friendItem";
 import { Friend } from "@/app/lib/types";
+import { CustomFriendList } from "./style";
 
 export default function FriendList({friendArray}:Readonly<{
     friendArray: Friend[] | null;
@@ -10,8 +11,8 @@ export default function FriendList({friendArray}:Readonly<{
     const [botsExist, changeBotsExist] = useState(false);
     return (
         <div>
-            <h1>Друзья:</h1>
-            <ul>
+            <h1>Друзья</h1>
+            <CustomFriendList>
                 {friendArray?
                 friendArray.map((friend) => {
                     if (!friend.bot) {
@@ -28,9 +29,9 @@ export default function FriendList({friendArray}:Readonly<{
                 {friendsExist? null:
                 'Ваш список друзей пуст'
                 }
-            </ul>
-            <h2>Ботики:</h2>
-            <ul>
+            </CustomFriendList>
+            <h2>Ботики</h2>
+            <CustomFriendList>
                 {friendArray?
                 friendArray.map((friend) => {
                     if (friend.bot) {
@@ -47,7 +48,7 @@ export default function FriendList({friendArray}:Readonly<{
                 {botsExist? null:
                 'Не добавлено ни одного бота'
                 }
-            </ul>
+            </CustomFriendList>
         </div>
     )
 }

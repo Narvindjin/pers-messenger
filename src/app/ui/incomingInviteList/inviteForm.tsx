@@ -8,8 +8,7 @@ import { useRouter } from 'next/navigation';
 import { observer } from "mobx-react-lite";
 import { useSocket } from '@/app/providers/socketProvider';
 import { HiddenInput } from '@/app/utils/mixins';
-import { InviteButtonContainer, InviteContainer, InviteName, InviteNameContainer } from './style';
-import { IconButton } from '../components/button/button';
+import { AcceptButton, DeclineButton, ErrorText, InviteButtonContainer, InviteContainer, InviteName, InviteNameContainer } from './style';
 import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -72,21 +71,21 @@ function InviteAcceptForm({ invite }: Readonly<{
                 <InviteButtonContainer>
                     {invite.accepted ? <p>Инвайт принят</p> :
                         <>
-                            <IconButton type={"submit"} name='accept' value={'true'} aria-disabled={pending}>
+                            <AcceptButton type={"submit"} name='accept' value={'true'} aria-disabled={pending}>
                                 <FontAwesomeIcon icon={faCheck} />
                                 <HiddenSpan>Принять инвайт</HiddenSpan>
-                            </IconButton>
-                            <IconButton type={"submit"} name='reject' value={'true'} aria-disabled={pending}>
+                            </AcceptButton>
+                            <DeclineButton type={"submit"} name='reject' value={'true'} aria-disabled={pending}>
                                 <FontAwesomeIcon icon={faXmark} />
                                 <HiddenSpan>Отклонить инвайт</HiddenSpan>
-                            </IconButton>
+                            </DeclineButton>
                         </>
                     }
                 </InviteButtonContainer>
             </InviteContainer>
             <div>
                 {!error?.success && error?.errorMessage && (
-                    <p>{error.errorMessage}</p>
+                    <ErrorText>{error.errorMessage}</ErrorText>
                 )}
             </div>
         </form>

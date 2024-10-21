@@ -11,6 +11,8 @@ interface ThemeTemplate {
     theme:ThemeType;
     desktopMargin:string;
     colorButton:string;
+    colorAccept:string;
+    colorDecline: string;
 }
 
 class theme implements ThemeTemplate {
@@ -24,6 +26,8 @@ class theme implements ThemeTemplate {
     theme;
     desktopMargin;
     colorButton;
+    colorAccept;
+    colorDecline;
     constructor(textColor: string, backgroundColor: string, elementColor: string, inputColor: string, colorButton: string, theme: ThemeType) {
         this.colorText = textColor;
         this.colorBackground = backgroundColor;
@@ -35,6 +39,8 @@ class theme implements ThemeTemplate {
         this.theme = theme;
         this.desktopMargin = '60px';
         this.colorButton = colorButton;
+        this.colorAccept = "rgba(0, 180, 0, 1)";
+        this.colorDecline = "rgba(203, 0, 0, 1)"
     }
 }
 

@@ -35,7 +35,8 @@ export async function getFriendList(user: User) {
                     select: {
                         id: true,
                         name: true,
-                        bot: true
+                        bot: true,
+                        image: true,
                     },
                 },
             }

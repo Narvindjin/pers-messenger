@@ -1,11 +1,16 @@
 'use client';
 
-import {useFormStatus, useFormState} from 'react-dom';
+import {useFormState} from 'react-dom';
 import {deleteInviteHandler} from "@/app/lib/actions/friendInvites";
 import { Invite } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { FormEvent } from 'react';
 import { useSocket } from '@/app/providers/socketProvider';
+import { DeclineButton, ErrorText, InviteButtonContainer, InviteContainer, InviteName, InviteNameContainer } from '../incomingInviteList/style';
+import { HiddenInput } from '@/app/utils/mixins';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 export default function InviteDeleteForm({invite}: Readonly<{
     invite: Invite
@@ -27,23 +32,23 @@ export default function InviteDeleteForm({invite}: Readonly<{
 
     return (
         <form action={formAction as unknown as string} onSubmit={submitHandler}>
-            <div>
-            <input type='text' name='inviteId' readOnly value={invite.id} />
-            <p>Инвайт для {invite!.to!.name}</p>
-            {invite.accepted? <p>Инвайт принят</p>: <DeleteButton/>}
-            </div>
-                {!result?.success && result?.errorMessage && (
-                    <p>{result.errorMessage}</p>
-                )}
+            <InviteContainer>
+                <HiddenInput type='text' name='inviteId' readOnly value={invite.id} />
+                <InviteNameContainer>
+                    <InviteName>{invite!.to!.name}</InviteName>
+                </InviteNameContainer>
+                <InviteButtonContainer>
+                    {invite.accepted ? <p>Инвайт принят</p> :
+                            <DeclineButton type={"submit"} name='reject' value={'true'}>
+                                <FontAwesomeIcon icon={faXmark} />
+                                <HiddenSpan>Отклонить инвайт</HiddenSpan>
+                            </DeclineButton>
+                    }
+                </InviteButtonContainer>
+            </InviteContainer>
+            {!result?.success && result?.errorMessage && (
+                <ErrorText>{result.errorMessage}</ErrorText>
+            )}
         </form>
-    );
-}
-
-function DeleteButton() {
-    const {pending} = useFormStatus();
-    return (
-        <button type={"submit"} aria-disabled={pending}>
-            Удалить инвайт
-        </button>
     );
 }
