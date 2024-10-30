@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import {useFormStatus, useFormState} from 'react-dom';
 import {removeFriendHandler} from "@/app/lib/actions/friendList";
 import { Friend } from '@/app/lib/types';
@@ -7,6 +7,11 @@ import { useRouter } from 'next/navigation';
 import { HiddenInput } from '@/app/utils/mixins';
 import Image from 'next/image';
 import { defaultAvatarSrc } from '@/app/utils/utils';
+import { CustomForm, DeleteFriendButton, FriendContainer, FriendNameContainer } from './style';
+import { InviteButtonContainer, InviteName} from '../incomingInviteList/style';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 export default function RemoveFriendForm({friend}: Readonly<{
     friend: Friend
@@ -17,22 +22,25 @@ export default function RemoveFriendForm({friend}: Readonly<{
         error.refresh = false;
         router.refresh();
     }
-    useEffect(() => {
-        console.log(friend.image)
-    }, [])
 
     return (
-        <form action={formAction as unknown as string}>
-            <div>
-                <HiddenInput type='text' name='friendId' readOnly value={friend.id} />
+        <CustomForm action={formAction as unknown as string}>
+            <FriendContainer>
+                <HiddenInput type='text' name='friendId' required readOnly value={friend.id} />
                 {friend.image? 
-                <Image src={friend.image}  width={100} height={100} alt='Аватар пользователя'/>:
-                <Image src={defaultAvatarSrc} width={100} height={100} alt='Аватар пользователя'/>
+                <Image src={friend.image}  width={75} height={75} alt='Аватар пользователя'/>:
+                <Image src={defaultAvatarSrc} width={75} height={75} alt='Аватар пользователя'/>
                 }
-                {friend.name}
-                <DeleteButton/>
-            </div>
-        </form>
+                <FriendNameContainer>
+                    <InviteName>
+                        {friend.name}
+                    </InviteName>
+                </FriendNameContainer>
+                <InviteButtonContainer>
+                    <DeleteButton/>
+                </InviteButtonContainer>
+            </FriendContainer>
+        </CustomForm>
     );
 }
 
@@ -40,8 +48,9 @@ function DeleteButton() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
-            Удалить друга
-        </button>
+        <DeleteFriendButton type={"submit"} aria-disabled={pending}>
+            <FontAwesomeIcon icon={faXmark} />
+            <HiddenSpan>Удалить из друзей</HiddenSpan>
+        </DeleteFriendButton>
     );
 }

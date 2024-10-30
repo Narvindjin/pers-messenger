@@ -1,7 +1,7 @@
 'use client'
 import React, {useContext} from 'react';
 import StyledContainer from "@/app/utils/container";
-import {StyledHeader, StyledList, StyledItem} from "@/app/blocks/header/style";
+import {StyledHeader, StyledItem, MenuContainer, NameContainer, StyledHeaderContainer} from "@/app/blocks/header/style";
 import Link from "next/link";
 import LeaveProfileButton from "@/app/ui/leaveProfileButton/leaveProfileButton";
 import {UserContext} from "@/app/contexts/userContext";
@@ -11,18 +11,23 @@ export default function Header() {
   return (
     <StyledHeader>
         <StyledContainer>
-            <StyledList>
-                <StyledItem>
-                    <Link href={"/"}>Главная</Link>
-                </StyledItem>
+            <StyledHeaderContainer>
+                <NameContainer>
+                    <StyledItem>
+                        <Link href={"/"}>Главная</Link>
+                    </StyledItem>
+                </NameContainer>
+                <MenuContainer>
                 {userObject.user?
+                
                 <StyledItem>
-                        <Link href={"/profile"}>В профиль {userObject.user.name}</Link>
+                        <Link href={"/profile"}>К чатам</Link>
                 </StyledItem>: ''}
                 <StyledItem>
                     {userObject.user? <LeaveProfileButton>Выйти из профиля</LeaveProfileButton>: <Link href={"/signin"}>Аутентификация</Link>}
                 </StyledItem>
-            </StyledList>
+                </MenuContainer>
+            </StyledHeaderContainer>
         </StyledContainer>
     </StyledHeader>
   );

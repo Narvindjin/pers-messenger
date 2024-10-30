@@ -5,7 +5,14 @@ import {useRouter} from 'next/navigation';
 import {Bot} from "@/app/lib/types";
 import {addBotFriendHandler} from "@/app/lib/actions/friendList";
 import {observer} from "mobx-react-lite";
-import { ErrorText } from '../incomingInviteList/style';
+import { InviteName } from '../incomingInviteList/style';
+import Image from 'next/image';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
+import { AddFriendButton, CustomForm, FriendContainer, FriendNameContainer } from '../friendList/style';
+import { HiddenInput } from '@/app/utils/mixins';
+import { defaultAvatarSrc } from '@/app/utils/utils';
 
 interface BotProps {
     bot: Bot
@@ -20,18 +27,19 @@ function AddBotForm({bot}: BotProps) {
     }
 
     return (
-        <form action={formAction as unknown as string}>
-            <div>
-                <div>
-                    <p>Ботик: {bot.name}</p>
-                </div>
-                <input name={'botId'} value={bot.id} required type={"hidden"}/>
+        <CustomForm action={formAction as unknown as string}>
+            <FriendContainer>
+                {bot.image? 
+                    <Image src={bot.image}  width={75} height={75} alt='Аватар пользователя'/>:
+                    <Image src={defaultAvatarSrc} width={75} height={75} alt='Аватар пользователя'/>
+                }
+                <FriendNameContainer>
+                    <InviteName>{bot.name}</InviteName>
+                </FriendNameContainer>
+                <HiddenInput name={'botId'} value={bot.id} required readOnly type={"hidden"}/>
                 <BefriendButton/>
-                    {!error?.success && error?.errorMessage && (
-                        <ErrorText>{error.errorMessage}</ErrorText>
-                    )}
-            </div>
-        </form>
+            </FriendContainer>
+        </CustomForm>
     );
 }
 
@@ -39,9 +47,10 @@ function BefriendButton() {
     const {pending} = useFormStatus();
 
     return (
-        <button type={"submit"} aria-disabled={pending}>
-            Добавить ботика
-        </button>
+        <AddFriendButton type={"submit"} aria-disabled={pending}>
+            <FontAwesomeIcon icon={faPlus} />
+            <HiddenSpan>Добавить бота</HiddenSpan>
+        </AddFriendButton>
     );
 }
 

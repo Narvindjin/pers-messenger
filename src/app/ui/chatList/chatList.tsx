@@ -4,6 +4,7 @@ import React, {useContext, useEffect} from "react";
 import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import {observer} from "mobx-react-lite";
 import { Chat } from "@/app/lib/types";
+import { ChatListContainer, CustomChatItem, CustomChatList } from "./style";
 
 
 function ChatList({chats}:Readonly<{
@@ -16,20 +17,20 @@ function ChatList({chats}:Readonly<{
         }
     }, chats)
         return (
-            <>
-            {chats.length > 0?
-            <ul>
-                {chatContext.chatList?.map((chat) => {
-                    return (
-                        <li key={chat.id}>
-                            <ChatOpenerItem chat={chat}/>
-                        </li>
-                    )
-                })}
-            </ul>:
-            'Чатов нет'
-            }
-        </>
+            <ChatListContainer>
+                {chats.length > 0?
+                <CustomChatList>
+                    {chatContext.chatList?.map((chat) => {
+                        return (
+                            <CustomChatItem key={chat.id}>
+                                <ChatOpenerItem chat={chat}/>
+                            </CustomChatItem>
+                        )
+                    })}
+                </CustomChatList>:
+                'Чатов нет'
+                }
+        </ChatListContainer>
         )
 }
 

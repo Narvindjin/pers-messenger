@@ -7,6 +7,8 @@ import {UserContext} from "@/app/contexts/userContext";
 import {observer} from "mobx-react-lite";
 import { messageHistoryHandler } from "@/app/lib/actions/message";
 import { useSocket } from "@/app/providers/socketProvider";
+import { HiddenInput } from "@/app/utils/mixins";
+import { ChangeCurrentChatButton, ChatInfoContainer, CustomForm, TextLine } from "./style";
 
 interface ChatOpenerItemProps {
     chat: Chat;
@@ -28,8 +30,6 @@ function ChatOpenerItem({chat}:ChatOpenerItemProps) {
             chatContext.setCurrentChat(chat)
             socket.socket.emit('clear-unread', chat.id)
             chatContext.handleNewMessageHistory(result)
-        } else if (!result?.success && result !== null) {
-            console.log(result)
         }
     }, [result])
 
@@ -41,14 +41,18 @@ function ChatOpenerItem({chat}:ChatOpenerItemProps) {
             message = chat.lastMessage;
         }
         return (
-            chat.writingArray? <p>{chat.writingArray[0].name} печатает...</p>:
-                message?
-                <div>
-                            <p>Последнее сообщение:</p>
-                            <p>От: {message.fromId === user.user?.id ? 'Вы' : chat.membersAdapters.find((member) => member.user.id === message!.fromId)!.user.name}</p>
-                            <p>{message.content}</p>
-                        </div>:
-                    <div></div>
+            <ChatInfoContainer>
+            {chat.writingArray? <TextLine>{chat.writingArray[0].name} печатает...</TextLine>:
+                message? <>
+                            <TextLine>{message.fromId === user.user?.id ? 'Вы:' : chat.membersAdapters.find((member) => member.user.id === message!.fromId)!.user.name + ':'}</TextLine>
+                            <TextLine>{message.content}</TextLine>
+                        </>:
+                        <>
+                            <br/>
+                            <br/>
+                        </>
+            }
+        </ChatInfoContainer>
         )
     }
 
@@ -67,16 +71,14 @@ function ChatOpenerItem({chat}:ChatOpenerItemProps) {
         createName();
     }, [chat])
     return (
-        <form action={formAction as unknown as string} style={chat.unread? {backgroundColor:"grey"}: undefined}>
-            {chatContext.currentChat?.id === chat.id? <p>текущий</p>:null}
-            <h3>{persistentName}</h3>
-            <input type="hidden" name="chatId" value={chat.id}></input>
-            {chat.unread? <p>Непрочитанных сообщений: {chat.unread}</p>: null}
-            {returnLastMessage()}
-            <button type={"submit"} aria-disabled={pending || chatContext.currentChat?.id === chat.id}>
-                Переключить чат
-            </button>
-        </form>
+        <CustomForm action={formAction as unknown as string}>
+            <ChangeCurrentChatButton $isCurrent={chatContext.currentChat?.id === chat.id} type={"submit"} aria-disabled={pending || chatContext.currentChat?.id === chat.id}>
+                <h3>{persistentName}</h3>
+                <HiddenInput type="hidden" name="chatId" value={chat.id}></HiddenInput>
+                {chat.unread? <p>Непрочитанных сообщений: {chat.unread}</p>: null}
+                {returnLastMessage()}
+            </ChangeCurrentChatButton>
+        </CustomForm>
     )
 }
 

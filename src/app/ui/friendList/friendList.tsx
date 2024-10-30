@@ -1,11 +1,13 @@
 'use client'
 import React, { useState } from "react";
 import RemoveFriendForm from "./friendItem";
-import { Friend } from "@/app/lib/types";
-import { CustomFriendList } from "./style";
+import { Bot, Friend } from "@/app/lib/types";
+import { CustomFriendItem, CustomFriendList } from "./style";
+import AddBotForm from "../addBotForm/addBotForm";
 
-export default function FriendList({friendArray}:Readonly<{
+export default function FriendList({friendArray, unaddedBotArray}:Readonly<{
     friendArray: Friend[] | null;
+    unaddedBotArray: Bot[]
   }>) {
     const [friendsExist, changeFriendsExist] = useState(false);
     const [botsExist, changeBotsExist] = useState(false);
@@ -20,9 +22,9 @@ export default function FriendList({friendArray}:Readonly<{
                             changeFriendsExist(true)
                         }
                         return (
-                            <li key={friend.id}>
+                            <CustomFriendItem key={friend.id}>
                                 <RemoveFriendForm friend={friend}/>
-                            </li>
+                            </CustomFriendItem>
                         )
                     }
                 }): null}
@@ -39,15 +41,20 @@ export default function FriendList({friendArray}:Readonly<{
                             changeBotsExist(true)
                         }
                         return (
-                            <li key={friend.id}>
+                            <CustomFriendItem key={friend.id}>
                                 <RemoveFriendForm friend={friend}/>
-                            </li>
+                            </CustomFriendItem>
                         )
                     }
                 }): null}
-                {botsExist? null:
-                'Не добавлено ни одного бота'
-                }
+                {unaddedBotArray?
+                unaddedBotArray.map((bot) => {
+                    return (
+                        <CustomFriendItem key={bot.id}>
+                            <AddBotForm bot={bot}/>
+                        </CustomFriendItem>
+                    )
+                }): null}
             </CustomFriendList>
         </div>
     )

@@ -5,6 +5,7 @@ import ChatList from '@/app/ui/chatList/chatList';
 import { Chat as ChatType } from '@/app/lib/types';
 import {observer} from "mobx-react-lite";
 import { ChatContext, ChatContextObject } from '@/app/contexts/chatContext';
+import { ChatContainerDesktop } from './style';
 
 
 function ChatController(
@@ -15,12 +16,10 @@ function ChatController(
     }>) {
         const chatContext = useContext(ChatContext) as ChatContextObject;
         return (
-            <>
-            {chatContext.currentChat? 
-                <Chat/>:
+            <ChatContainerDesktop>
                 <ChatList chats={chatList}/>
-            }   
-            </>
+                <Chat/>
+            </ChatContainerDesktop>
         )
 }
 

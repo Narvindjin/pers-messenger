@@ -56,7 +56,7 @@ export interface Bot {
     id: string,
     name: string,
     roomUrl: string | null,
-    imageUrl: string,
+    image: string,
     botPurpose: string,
 }
 

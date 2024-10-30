@@ -6,6 +6,10 @@ import {ChatContext, ChatContextObject} from "@/app/contexts/chatContext";
 import ChatMessage from "@/app/ui/chatMessage/chatMessage";
 import {autorun} from "mobx";
 import {observer} from "mobx-react-lite";
+import { ChatInput, ChatWrapper, SendButton, SendForm } from './style';
+import { HiddenSpan } from '../components/hiddenSpan/hiddenSpan';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 
 function Chat() {
@@ -88,12 +92,8 @@ function Chat() {
     }
 
     return (
-        <div>
+        <ChatWrapper>
             <div>
-                <button type='button' onClick={backButtonHandler}>К списку</button>
-            </div>
-            <div>
-                <p>История сообщений:</p>
                 <div>
                     {chatContext.currentChat?.messages.map((message) => {
                         return(
@@ -103,22 +103,24 @@ function Chat() {
                         )
                     })}
                 </div>
-                <button type={"button"} onClick={() => deleteButtonHandler()}>Удалить все сообщения</button>
             </div>
             {chatContext.currentChat?.writingArray? <p>{chatContext.currentChat.writingArray[0].name} печатает...</p>: null}
             <div>
-                <form action={'/'} method={'post'} onSubmit={(evt) => submitHandler(evt)}>
-                <input
-                    placeholder="Type something"
-                    name={'chat-message'}
-                    value={messageText}
-                    onChange={(evt) => inputHandler(evt)}
-                    onBlur={(evt) => blurHandler(evt)}
-                />
-                    <button type={"submit"}>Послать сообщение</button>
-                </form>
+                <SendForm action={'/'} method={'post'} onSubmit={(evt) => submitHandler(evt)}>
+                    <ChatInput
+                        placeholder="Type something"
+                        name={'chat-message'}
+                        value={messageText}
+                        onChange={(evt) => inputHandler(evt)}
+                        onBlur={(evt) => blurHandler(evt)}
+                    />
+                        <SendButton type={"submit"}>
+                            <FontAwesomeIcon icon={faChevronRight} />
+                            <HiddenSpan>Послать сообщение</HiddenSpan>
+                        </SendButton>
+                </SendForm>
             </div>
-        </div>
+        </ChatWrapper>
     );
 }
 

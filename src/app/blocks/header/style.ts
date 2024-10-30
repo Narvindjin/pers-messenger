@@ -6,7 +6,7 @@ const StyledHeader = styled.div`
     width: 100%;
 `
 
-const StyledList = styled.ul`
+const StyledHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     margin-left: auto;
@@ -14,13 +14,22 @@ const StyledList = styled.ul`
     height: 100%;
 `
 
-const StyledItem = styled.li`
+const StyledItem = styled.div`
     display: flex;
     height: fit-content;
     width: fit-content;
     padding: 4px;
     align-items: center;
-    color: ${(props) => props.theme.colorText};
 `
 
-export {StyledHeader, StyledList, StyledItem};
+const NameContainer = styled.div`
+    margin-right: auto;
+    display: flex;
+`
+
+const MenuContainer = styled.div`
+    margin-left: auto;
+    display: flex;
+`
+
+export {StyledHeader, StyledHeaderContainer, StyledItem, NameContainer, MenuContainer};
