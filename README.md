@@ -1,3 +1,13 @@
+Пробный проект на Next.js - мессенджер на основе Websocket + Prisma/PostgreSQL. Убран в долгий ящик, так как сослужил свою службу - бэкенд по большей части написан, дизайн сделаю когда-нибудь позже.
+
+Для запуска:
+1. Установить проект;
+2. Поднять docker-контейнер из папки postgre-docker;
+3. Создать клиент Prisma, инициализировать базу данных и заполнить её первичными данными;
+4. Заполнить .env файл для работы Auth.js и его почтовой рассылки;
+
+Сделан на основе Create-next-app, документация к нему ниже.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
